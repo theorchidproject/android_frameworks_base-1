@@ -73,7 +73,7 @@ public class ViewConfiguration {
      * a long press
      * @hide
      */
-    public static final int DEFAULT_LONG_PRESS_TIMEOUT = 300;
+    public static final int DEFAULT_LONG_PRESS_TIMEOUT = 250;
 
     /**
      * Defines the default duration in milliseconds between the first tap's up event and the second
@@ -242,7 +242,7 @@ public class ViewConfiguration {
      * The coefficient of friction applied to flings/scrolls.
      */
     @UnsupportedAppUsage
-    private static final float SCROLL_FRICTION = 0.015f;
+    private static final float SCROLL_FRICTION = 0.007f;
 
     /**
      * Max distance in dips to overscroll for edge effects
