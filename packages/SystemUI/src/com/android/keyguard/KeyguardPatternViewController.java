@@ -239,6 +239,13 @@ public class KeyguardPatternViewController
             }
             return false;
         });
+
+        mLockPatternView.setLockPatternUtils(mLockPatternUtils);
+        mLockPatternView.setLockPatternSize(mLockPatternUtils.getLockPatternSize(userId));
+
+        mLockPatternView.setVisibleDots(mLockPatternUtils.isVisibleDotsEnabled(userId));
+        mLockPatternView.setShowErrorPath(mLockPatternUtils.isShowErrorPath(userId));
+
         mEmergencyButtonController.setEmergencyButtonCallback(mEmergencyButtonCallback);
 
         View cancelBtn = mView.findViewById(R.id.cancel_button);
