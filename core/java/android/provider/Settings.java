@@ -5243,6 +5243,109 @@ public final class Settings {
         public static final String SHOW_FOURG_ICON = "show_fourg_icon";
 
         /**
+         * Transparent power menu and dialogs
+         * @hide
+         */
+        public static final String TRANSPARENT_POWER_MENU = "transparent_power_menu";
+
+        /**
+         * Dim amount around power/reboot menu dialogs
+         * @hide
+         */
+        public static final String TRANSPARENT_POWER_DIALOG_DIM = "transparent_power_dialog_dim";
+
+        /**
+         * Whether to display set of animations when prompting the power menu
+         *
+         * @hide
+         */
+        public static final String POWER_MENU_ANIMATIONS = "power_menu_animations";
+
+        /**
+         * Whether to display sound panel in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_SOUNDPANEL = "powermenu_soundpanel";
+
+         /**
+         * Whether to display screenshot in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_SCREENSHOT = "powermenu_screenshot";
+
+         /**
+         * Whether to display settings in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_SETTINGS = "powermenu_settings";
+
+         /**
+         * Whether to display lock in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_LOCKDOWN = "powermenu_lockdown";
+
+         /**
+         * Whether to display airplane in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_AIRPLANE = "powermenu_airplane";
+
+         /**
+         * Whether to display reboot in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_RESTART = "powermenu_restart";
+
+         /**
+         * Whether to display reboot in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_ADVANCED = "powermenu_advanced";
+
+         /**
+         * Whether to display power in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_POWER = "powermenu_power";
+
+         /**
+         * Whether to display the users option in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_USERS = "powermenu_users";
+
+         /**
+         * Whether to display the users option in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_LOGOUT = "powermenu_logout";
+
+         /**
+         * Whether to display the users option in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_EMERGENCY = "powermenu_emergency";
+
+        /**
+         * Whether to display the torch option in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_TORCH = "powermenu_torch";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -5388,7 +5491,8 @@ public final class Settings {
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE_VENDOR_HINT);
             PRIVATE_SETTINGS.add(VOLUME_ROCKER_WAKE);
-
+            PRIVATE_SETTINGS.add(TRANSPARENT_POWER_MENU);
+            PRIVATE_SETTINGS.add(TRANSPARENT_POWER_DIALOG_DIM);
         }
 
         /**

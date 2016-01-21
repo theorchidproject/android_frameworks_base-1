@@ -22,6 +22,7 @@ import android.annotation.StringRes;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.PowerManager;
+import android.os.SystemProperties;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -86,7 +87,7 @@ public class GlobalActionsImpl implements GlobalActions, CommandQueue.Callbacks 
     }
 
     @Override
-    public void showShutdownUi(boolean isReboot, String reason, boolean rebootCustom) {
+    public void showShutdownUi(boolean isReboot, String reason, boolean advancedReboot) {
         ScrimDrawable background = new ScrimDrawable();
 
         final Dialog d = new Dialog(mContext,
@@ -150,8 +151,8 @@ public class GlobalActionsImpl implements GlobalActions, CommandQueue.Callbacks 
         reasonView.setTextColor(color);
         messageView.setTextColor(color);
 
-        messageView.setText(getRebootMessage(isReboot, reason, rebootCustom));
-        String rebootReasonMessage = getReasonMessage(reason, rebootCustom);
+        messageView.setText(getRebootMessage(isReboot, reason, advancedReboot));
+        String rebootReasonMessage = getReasonMessage(reason, advancedReboot);
         if (rebootReasonMessage != null) {
             reasonView.setVisibility(View.VISIBLE);
             reasonView.setText(rebootReasonMessage);
@@ -165,15 +166,17 @@ public class GlobalActionsImpl implements GlobalActions, CommandQueue.Callbacks 
         if (reason != null && reason.startsWith(PowerManager.REBOOT_RECOVERY_UPDATE)) {
             return R.string.reboot_to_update_reboot;
         } else if (reason != null && !custom && reason.equals(PowerManager.REBOOT_RECOVERY)) {
-            return com.android.systemui.R.string.global_action_restart_progress;
+            return R.string.reboot_to_recovery_message;
         } else if (reason != null && reason.equals(PowerManager.REBOOT_RECOVERY)) {
-            return com.android.systemui.R.string.global_action_restart_recovery_progress;
+            return com.android.internal.R.string.reboot_to_recovery_message;
         } else if (reason != null && reason.equals(PowerManager.REBOOT_BOOTLOADER)) {
-            return com.android.systemui.R.string.global_action_restart_bootloader_progress;
-        } else if (reason != null && reason.equals(PowerManager.REBOOT_DOWNLOAD)) {
-            return com.android.systemui.R.string.global_action_restart_download_progress;
+            return R.string.reboot_to_bootloader_message;
         } else if (reason != null && reason.equals(PowerManager.REBOOT_FASTBOOT)) {
-            return com.android.systemui.R.string.global_action_restart_fastboot_progress;
+            if (SystemProperties.getBoolean("ro.fastbootd.available", false)) {
+                return R.string.reboot_to_fastboot_message;
+            } else {
+                return R.string.reboot_to_fastbootd_message;
+            }
         } else if (isReboot) {
             return com.android.systemui.R.string.global_action_restart_progress;
         } else {
