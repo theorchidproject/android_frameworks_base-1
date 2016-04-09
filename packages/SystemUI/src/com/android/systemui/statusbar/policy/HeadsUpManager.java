@@ -101,6 +101,10 @@ public abstract class HeadsUpManager extends AlertingNotificationManager {
                 Settings.System.HEADS_UP_NOTIFICATION_SNOOZE,
                 context.getResources().getInteger(R.integer.heads_up_default_snooze_length_ms),
                 UserHandle.USER_CURRENT);
+        mSnoozeLengthMs = Settings.System.getIntForUser(context.getContentResolver(),
+                Settings.System.HEADS_UP_NOTIFICATION_SNOOZE,
+                context.getResources().getInteger(R.integer.heads_up_default_snooze_length_ms),
+                UserHandle.USER_CURRENT);
         mTouchAcceptanceDelay = resources.getInteger(R.integer.touch_acceptance_delay);
         mSnoozedPackages = new ArrayMap<>();
         ContentObserver settingsObserver = new ContentObserver(mHandler) {
