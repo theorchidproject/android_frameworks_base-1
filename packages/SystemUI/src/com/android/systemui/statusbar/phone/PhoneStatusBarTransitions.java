@@ -45,6 +45,7 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
         mStatusIcons = statusBarView.findViewById(R.id.statusIcons);
         mNetworkTraffic = statusBarView.findViewById(R.id.network_traffic);
         mBattery = statusBarView.findViewById(R.id.battery);
+        mNetworkTraffic = statusBarView.findViewById(R.id.networkTraffic);
         applyModeBackground(-1, getMode(), false /*animate*/);
         applyMode(getMode(), false /*animate*/);
     }
@@ -89,10 +90,6 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
                     animateTransitionTo(mStatusIcons, newAlpha),
                     animateTransitionTo(mNetworkTraffic, newAlpha),
                     animateTransitionTo(mBattery, newAlphaBC)
-                    );
-            if (isLightsOut(mode)) {
-                anims.setDuration(LIGHTS_OUT_DURATION);
-            }
             anims.start();
             mCurrentAnimation = anims;
         } else {
@@ -100,6 +97,7 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
             mStatusIcons.setAlpha(newAlpha);
             mNetworkTraffic.setAlpha(newAlpha);
             mBattery.setAlpha(newAlphaBC);
+            mNetworkTraffic.setAlpha(newAlpha);
         }
     }
 }
