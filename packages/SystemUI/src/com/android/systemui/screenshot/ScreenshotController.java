@@ -265,7 +265,6 @@ public class ScreenshotController {
     private final AccessibilityManager mAccessibilityManager;
     private final AudioManager mAudioManager;
     private final MediaActionSound mCameraSound;
-    private final AudioManager mAudioManager;
     private final Vibrator mVibrator;
     private final CameraManager mCameraManager;
     private int mCamsInUse = 0;
@@ -275,7 +274,6 @@ public class ScreenshotController {
     private final ScrollCaptureController mScrollCaptureController;
     private final IStatusBarService mStatusBarService;
     private final LongScreenshotData mLongScreenshotHolder;
-    private final Vibrator mVibrator;
     private final boolean mIsLowRamDevice;
 
     private ScreenshotView mScreenshotView;
