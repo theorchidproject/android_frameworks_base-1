@@ -62,6 +62,9 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraAccessException;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Bundle;
@@ -179,13 +182,29 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
     private static final boolean SHOW_SILENT_TOGGLE = true;
 
-    /* Valid settings for restart actions keys.
-     * see lineage-sdk config.xml config_restartActionsList */
-    private static final String RESTART_ACTION_KEY_RESTART = "restart";
-    private static final String RESTART_ACTION_KEY_RESTART_RECOVERY = "restart_recovery";
-    private static final String RESTART_ACTION_KEY_RESTART_BOOTLOADER = "restart_bootloader";
-    private static final String RESTART_ACTION_KEY_RESTART_DOWNLOAD = "restart_download";
-    private static final String RESTART_ACTION_KEY_RESTART_FASTBOOT = "restart_fastboot";
+    /* Valid settings for global actions keys.
+     * see config.xml config_globalActionList */
+    @VisibleForTesting
+    static final String GLOBAL_ACTION_KEY_POWER = "power";
+    private static final String GLOBAL_ACTION_KEY_AIRPLANE = "airplane";
+    static final String GLOBAL_ACTION_KEY_BUGREPORT = "bugreport";
+    private static final String GLOBAL_ACTION_KEY_SILENT = "silent";
+    private static final String GLOBAL_ACTION_KEY_USERS = "users";
+    private static final String GLOBAL_ACTION_KEY_SETTINGS = "settings";
+    static final String GLOBAL_ACTION_KEY_LOCKDOWN = "lockdown";
+    private static final String GLOBAL_ACTION_KEY_VOICEASSIST = "voiceassist";
+    private static final String GLOBAL_ACTION_KEY_ASSIST = "assist";
+    static final String GLOBAL_ACTION_KEY_RESTART = "restart";
+    private static final String GLOBAL_ACTION_KEY_LOGOUT = "logout";
+    static final String GLOBAL_ACTION_KEY_EMERGENCY = "emergency";
+    static final String GLOBAL_ACTION_KEY_SCREENSHOT = "screenshot";
+
+    private static final String GLOBAL_ACTION_KEY_ADVANCED_RESTART = "advanced";
+    private static final String GLOBAL_ACTION_KEY_TORCH = "torch";
+
+    private static final int RESTART_RECOVERY_BUTTON = 1;
+    private static final int RESTART_BOOTLOADER_BUTTON = 2;
+    private static final int RESTART_UI_BUTTON = 3;
 
     // See NotificationManagerService#scheduleDurationReachedLocked
     private static final long TOAST_FADE_TIME = 333;
@@ -265,6 +284,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     private final KeyguardUpdateMonitor mKeyguardUpdateMonitor;
     private final DialogLaunchAnimator mDialogLaunchAnimator;
     private final ControlsComponent mControlsComponent;
+    private boolean mTorchEnabled = false;
 
     @VisibleForTesting
     public enum GlobalActionsEvent implements UiEventLogger.UiEventEnum {
@@ -730,6 +750,11 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             } else if (GLOBAL_ACTION_KEY_LOCKDOWN.equals(actionKey)) {
                 if (shouldDisplayLockdown(currentUser.get())) {
                     addIfShouldShowAction(tempActions, new LockDownAction());
+                }
+            } else if (GLOBAL_ACTION_KEY_TORCH.equals(actionKey)) {
+                if (Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.POWERMENU_TORCH, 0) != 0) {
+                    addIfShouldShowAction(tempActions, getTorchToggleAction());
                 }
             } else if (GLOBAL_ACTION_KEY_VOICEASSIST.equals(actionKey)) {
                 addIfShouldShowAction(tempActions, getVoiceAssistAction());
@@ -1255,6 +1280,37 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     @VisibleForTesting
     ScreenshotAction makeScreenshotActionForTesting() {
         return new ScreenshotAction();
+    }
+
+    private Action getTorchToggleAction() {
+        return new SinglePressAction(com.android.systemui.R.drawable.ic_lock_torch,
+                com.android.systemui.R.string.quick_settings_flashlight_label) {
+
+            public void onPress() {
+                try {
+                    CameraManager cameraManager = (CameraManager)
+                            mContext.getSystemService(Context.CAMERA_SERVICE);
+                    for (final String cameraId : cameraManager.getCameraIdList()) {
+                        CameraCharacteristics characteristics =
+                            cameraManager.getCameraCharacteristics(cameraId);
+                        int orient = characteristics.get(CameraCharacteristics.LENS_FACING);
+                        if (orient == CameraCharacteristics.LENS_FACING_BACK) {
+                            cameraManager.setTorchMode(cameraId, !mTorchEnabled);
+                            mTorchEnabled = !mTorchEnabled;
+                        }
+                    }
+                } catch (CameraAccessException e) {
+                }
+            }
+
+            public boolean showDuringKeyguard() {
+                return true;
+            }
+
+            public boolean showBeforeProvisioning() {
+                return false;
+            }
+        };
     }
 
     @VisibleForTesting
