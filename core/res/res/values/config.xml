@@ -3029,6 +3029,7 @@
         <item>silent</item>
         <item>airplane</item>
         <item>settings</item>
+        <item>torch</item>
         <!--<item>bugreport</item>-->
     </string-array>
 
