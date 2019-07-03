@@ -82,7 +82,7 @@
 
     <!-- Tiles native to System UI. Order should match "quick_settings_tiles_default" -->
     <string name="quick_settings_tiles_stock" translatable="false">
-       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles
+       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles,vpn
     </string>
 
     <!-- The tiles to display in QuickSettings -->
