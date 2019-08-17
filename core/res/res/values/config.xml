@@ -5142,6 +5142,12 @@
     <bool name="config_supportsMicToggle">false</bool>
     <!-- Whether this device is supporting the camera toggle -->
     <bool name="config_supportsCamToggle">false</bool>
+    
+    <!-- Whether device has a physical display cutout -->
+    <bool name="config_physicalDisplayCutout">false</bool>
+
+    <!-- Whether device has a big physical display cutout -->
+    <bool name="config_bigPhysicalDisplayCutout">false</bool>
 
     <!-- List containing the allowed install sources for accessibility service. -->
     <string-array name="config_accessibility_allowed_install_source" translatable="false"/>
