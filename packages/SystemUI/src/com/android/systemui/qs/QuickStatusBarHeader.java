@@ -60,7 +60,31 @@ import java.util.List;
  * View that contains the top-most bits of the QS panel (primarily the status bar with date, time,
  * battery, carrier info and privacy icons) and also contains the {@link QuickQSPanel}.
  */
-public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tunable {
+public class QuickStatusBarHeader extends RelativeLayout implements
+        View.OnClickListener, NextAlarmController.NextAlarmChangeCallback,
+        ZenModeController.Callback, LifecycleOwner, TunerService.Tunable {
+    private static final String TAG = "QuickStatusBarHeader";
+    private static final boolean DEBUG = false;
+
+    /** Delay for auto fading out the long press tooltip after it's fully visible (in ms). */
+    private static final long AUTO_FADE_OUT_DELAY_MS = DateUtils.SECOND_IN_MILLIS * 6;
+    private static final int FADE_ANIMATION_DURATION_MS = 300;
+    private static final int TOOLTIP_NOT_YET_SHOWN_COUNT = 0;
+    public static final int MAX_TOOLTIP_SHOWN_COUNT = 2;
+
+    private static final String QS_SHOW_AUTO_BRIGHTNESS =
+            "lineagesecure:" + LineageSettings.Secure.QS_SHOW_AUTO_BRIGHTNESS;
+    private static final String QS_SHOW_BRIGHTNESS_SLIDER =
+            "lineagesecure:" + LineageSettings.Secure.QS_SHOW_BRIGHTNESS_SLIDER;
+    public static final String STATUS_BAR_CUSTOM_HEADER =
+            "system:" + Settings.System.STATUS_BAR_CUSTOM_HEADER;
+
+    private final NextAlarmController mAlarmController;
+    private final ZenModeController mZenController;
+    private final StatusBarIconController mStatusBarIconController;
+    private final ActivityStarter mActivityStarter;
+
+    private QSPanel mQsPanel;
 
     private boolean mExpanded;
     private boolean mQsDisabled;
@@ -92,13 +116,20 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
     private View mPrivacyContainer;
 
     private BatteryMeterView mBatteryRemainingIcon;
-    private StatusIconContainer mIconContainer;
-    private View mPrivacyChip;
+    private RingerModeTracker mRingerModeTracker;
+    private boolean mAllIndicatorsEnabled;
+    private boolean mMicCameraIndicatorsEnabled;
+    private BroadcastDispatcher mBroadcastDispatcher;
+    private boolean mLandscape;
+    private boolean mHeaderImageEnabled;
 
-    private TintedIconManager mTintedIconManager;
-    private QSExpansionPathInterpolator mQSExpansionPathInterpolator;
-    private StatusBarContentInsetsProvider mInsetsProvider;
+    private PrivacyItemController mPrivacyItemController;
+    private final UiEventLogger mUiEventLogger;
+    // Used for RingerModeTracker
+    private final LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
 
+    private boolean mHasTopCutout = false;
+    private int mStatusBarPaddingTop = 0;
     private int mRoundedCornerPadding = 0;
     private int mWaterfallTopInset;
     private int mCutOutPaddingLeft;
@@ -141,6 +172,26 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
         mContainer = findViewById(R.id.qs_container);
         mIconContainer = findViewById(R.id.statusIcons);
         mPrivacyChip = findViewById(R.id.privacy_chip);
+        mPrivacyChip.setOnClickListener(this::onClick);
+        mCarrierGroup = findViewById(R.id.carrier_group);
+
+
+        Rect tintArea = new Rect(0, 0, 0, 0);
+        int colorForeground = Utils.getColorAttrDefaultColor(getContext(),
+                android.R.attr.colorForeground);
+        float intensity = getColorIntensity(colorForeground);
+        int fillColor = mDualToneHandler.getSingleColor(intensity);
+
+        // Set light text on the header icons because they will always be on a black background
+        applyDarkness(R.id.clock, tintArea, 0, DarkIconDispatcher.DEFAULT_ICON_TINT);
+
+        // Set the correct tint for the status icons so they contrast
+        mIconManager.setTint(fillColor);
+        mNextAlarmIcon.setImageTintList(ColorStateList.valueOf(fillColor));
+        mRingerModeIcon.setImageTintList(ColorStateList.valueOf(fillColor));
+
+        mClockView = findViewById(R.id.clock);
+        mClockView.setOnClickListener(this);
         mDateView = findViewById(R.id.date);
         mClockDateView = findViewById(R.id.date_clock);
         mSecurityHeaderView = findViewById(R.id.header_text_container);
@@ -170,14 +221,37 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
         // QS will always show the estimate, and BatteryMeterView handles the case where
         // it's unavailable or charging
         mBatteryRemainingIcon.setPercentShowMode(BatteryMeterView.MODE_ESTIMATE);
+        mRingerModeTextView.setSelected(true);
+        mNextAlarmTextView.setSelected(true);
+        mAllIndicatorsEnabled = mPrivacyItemController.getAllIndicatorsAvailable();
+        mMicCameraIndicatorsEnabled = mPrivacyItemController.getMicCameraAvailable();
 
-        mIconsAlphaAnimatorFixed = new TouchAnimator.Builder()
-                .addFloat(mIconContainer, "alpha", 0, 1)
-                .addFloat(mBatteryRemainingIcon, "alpha", 0, 1)
-                .build();
+        updateResources();
 
         Dependency.get(TunerService.class).addTunable(this,
-                StatusBarIconController.ICON_HIDE_LIST);
+                StatusBarIconController.ICON_BLACKLIST,
+                QS_SHOW_AUTO_BRIGHTNESS, QS_SHOW_BRIGHTNESS_SLIDER,
+                STATUS_BAR_CUSTOM_HEADER);
+    }
+
+    public QuickQSPanel getHeaderQsPanel() {
+        return mHeaderQsPanel;
+    }
+
+    private List<String> getIgnoredIconSlots() {
+        ArrayList<String> ignored = new ArrayList<>();
+        if (getChipEnabled()) {
+            ignored.add(mContext.getResources().getString(
+                    com.android.internal.R.string.status_bar_camera));
+            ignored.add(mContext.getResources().getString(
+                    com.android.internal.R.string.status_bar_microphone));
+            if (mAllIndicatorsEnabled) {
+                ignored.add(mContext.getResources().getString(
+                        com.android.internal.R.string.status_bar_location));
+            }
+        }
+
+        return ignored;
     }
 
     void onAttach(TintedIconManager iconManager,
@@ -223,10 +297,8 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        mLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE;
         updateResources();
-        setDatePrivacyContainersWidth(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE);
-        setSecurityHeaderContainerVisibility(
-                newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE);
     }
 
     @Override
@@ -235,11 +307,26 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
         updateResources();
     }
 
-    private void setDatePrivacyContainersWidth(boolean landscape) {
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mDateContainer.getLayoutParams();
-        lp.width = landscape ? WRAP_CONTENT : 0;
-        lp.weight = landscape ? 0f : 1f;
-        mDateContainer.setLayoutParams(lp);
+    /**
+     * The height of QQS should always be the status bar height + 128dp. This is normally easy, but
+     * when there is a notch involved the status bar can remain a fixed pixel size.
+     */
+    private void updateMinimumHeight() {
+        int sbHeight = mContext.getResources().getDimensionPixelSize(
+                com.android.internal.R.dimen.status_bar_height);
+        int qqsHeight = mContext.getResources().getDimensionPixelSize(
+                R.dimen.qs_quick_header_panel_height);
+
+        if (mIsQuickQsBrightnessEnabled) {
+            qqsHeight += mContext.getResources().getDimensionPixelSize(
+                    R.dimen.brightness_mirror_height)
+                    + mContext.getResources().getDimensionPixelSize(
+                    R.dimen.qs_tile_margin_top);
+        }
+        if (mHeaderImageEnabled) {
+            qqsHeight += mContext.getResources().getDimensionPixelSize(
+                    R.dimen.qs_header_image_offset);
+        }
 
         lp = (LinearLayout.LayoutParams) mPrivacyContainer.getLayoutParams();
         lp.width = landscape ? WRAP_CONTENT : 0;
@@ -276,9 +363,12 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
 
         int qsOffsetHeight = SystemBarUtils.getQuickQsOffsetHeight(mContext);
 
-        mDatePrivacyView.getLayoutParams().height =
-                Math.max(qsOffsetHeight, mDatePrivacyView.getMinimumHeight());
-        mDatePrivacyView.setLayoutParams(mDatePrivacyView.getLayoutParams());
+        int topMargin = resources.getDimensionPixelSize(
+                com.android.internal.R.dimen.quick_qs_offset_height) + (mHeaderImageEnabled ?
+                resources.getDimensionPixelSize(R.dimen.qs_header_image_offset) : 0);
+
+        mSystemIconsView.getLayoutParams().height = topMargin;
+        mSystemIconsView.setLayoutParams(mSystemIconsView.getLayoutParams());
 
         mStatusIconsView.getLayoutParams().height =
                 Math.max(qsOffsetHeight, mStatusIconsView.getMinimumHeight());
@@ -286,39 +376,18 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
 
         ViewGroup.LayoutParams lp = getLayoutParams();
         if (mQsDisabled) {
-            lp.height = mStatusIconsView.getLayoutParams().height;
+            lp.height = topMargin;
         } else {
             lp.height = WRAP_CONTENT;
         }
         setLayoutParams(lp);
 
-        int textColor = Utils.getColorAttrDefaultColor(mContext, android.R.attr.textColorPrimary);
-        if (textColor != mTextColorPrimary) {
-            boolean isCircleBattery = LineageSettings.System.getIntForUser(
-                    mContext.getContentResolver(), LineageSettings.System.STATUS_BAR_BATTERY_STYLE,
-                    0, UserHandle.USER_CURRENT) == 1;
-            int textColorSecondary = Utils.getColorAttrDefaultColor(mContext,
-                    isCircleBattery ? android.R.attr.textColorHint :
-                    android.R.attr.textColorSecondary);
-            mTextColorPrimary = textColor;
-            mClockView.setTextColor(textColor);
-            if (mTintedIconManager != null) {
-                mTintedIconManager.setTint(textColor);
-            }
-            mBatteryRemainingIcon.updateColors(mTextColorPrimary, textColorSecondary,
-                    mTextColorPrimary);
-        }
+        updateStatusIconAlphaAnimator();
+        updateHeaderTextContainerAlphaAnimator();
+        updatePrivacyChipAlphaAnimator();
 
-        MarginLayoutParams qqsLP = (MarginLayoutParams) mHeaderQsPanel.getLayoutParams();
-        qqsLP.topMargin = shouldUseSplitShade || !mUseCombinedQSHeader ? mContext.getResources()
-                .getDimensionPixelSize(R.dimen.qqs_layout_margin_top) : qsOffsetHeight;
-        mHeaderQsPanel.setLayoutParams(qqsLP);
-
-        updateBatteryMode();
-        updateHeadersPadding();
-        updateAnimators();
-
-        updateClockDatePadding();
+        boolean shouldUseWallpaperTextColor = mLandscape && !mHeaderImageEnabled;
+        mClockView.useWallpaperTextColor(shouldUseWallpaperTextColor);
     }
 
     private void updateClockDatePadding() {
@@ -593,7 +662,22 @@ public class QuickStatusBarHeader extends FrameLayout implements TunerService.Tu
 
     @Override
     public void onTuningChanged(String key, String newValue) {
-        mClockView.setClockVisibleByUser(!StatusBarIconController.getIconHideList(
-                mContext, newValue).contains("clock"));
+        switch (key) {
+            case QS_SHOW_BRIGHTNESS_SLIDER:
+                mIsQuickQsBrightnessEnabled = TunerService.parseInteger(newValue, 0) > 1;
+                updateResources();
+                break;
+            case QS_SHOW_AUTO_BRIGHTNESS:
+                mIsQsAutoBrightnessEnabled = TunerService.parseIntegerSwitch(newValue, true);
+                updateResources();
+                break;
+            case STATUS_BAR_CUSTOM_HEADER:
+                mHeaderImageEnabled =
+                        TunerService.parseIntegerSwitch(newValue, false);
+                updateResources();
+                break;
+            default:
+                break;
+        }
     }
 }

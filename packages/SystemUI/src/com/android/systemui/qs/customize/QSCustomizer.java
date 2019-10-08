@@ -23,6 +23,9 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.os.Bundle;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -64,6 +67,9 @@ public class QSCustomizer extends LinearLayout {
     private int mY;
     private boolean mOpening;
     private boolean mIsShowingNavBackdrop;
+    private boolean mHeaderImageEnabled;
+
+    private UiEventLogger mUiEventLogger = new UiEventLoggerImpl();
 
     public QSCustomizer(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -87,6 +93,12 @@ public class QSCustomizer extends LinearLayout {
         DefaultItemAnimator animator = new DefaultItemAnimator();
         animator.setMoveDuration(TileAdapter.MOVE_DURATION);
         mRecyclerView.setItemAnimator(animator);
+        mLightBarController = lightBarController;
+        mKeyguardStateController = keyguardStateController;
+        mScreenLifecycle = screenLifecycle;
+        updateNavBackDrop(getResources().getConfiguration());
+
+        updateSettings();
     }
 
     private boolean isNightMode() {
@@ -96,14 +108,23 @@ public class QSCustomizer extends LinearLayout {
 
     void updateResources() {
         LayoutParams lp = (LayoutParams) mTransparentView.getLayoutParams();
-        lp.height = Utils.getQsHeaderSystemIconsAreaHeight(mContext);
+        lp.height = mContext.getResources().getDimensionPixelSize(
+                com.android.internal.R.dimen.quick_qs_offset_height);
+        if (mHeaderImageEnabled) {
+            lp.height += mContext.getResources().getDimensionPixelSize(
+                    R.dimen.qs_header_image_offset);
+        }
         mTransparentView.setLayoutParams(lp);
     }
 
     void updateNavBackDrop(Configuration newConfig, LightBarController lightBarController) {
         mIsShowingNavBackdrop = newConfig.smallestScreenWidthDp >= 600
                 || newConfig.orientation != Configuration.ORIENTATION_LANDSCAPE;
-        updateNavColors(lightBarController);
+        if (navBackdrop != null) {
+            navBackdrop.setVisibility(mIsShowingNavBackdrop ? View.VISIBLE : View.GONE);
+        }
+        updateNavColors();
+        updateSettings();
     }
 
     void updateNavColors(LightBarController lightBarController) {
@@ -230,11 +251,9 @@ public class QSCustomizer extends LinearLayout {
         }
     };
 
-    public RecyclerView getRecyclerView() {
-        return mRecyclerView;
-    }
-
-    public boolean isOpening() {
-        return mOpening;
+    private void updateSettings() {
+        mHeaderImageEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CUSTOM_HEADER, 0,
+                UserHandle.USER_CURRENT) == 1;
     }
 }
