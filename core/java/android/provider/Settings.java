@@ -5275,7 +5275,7 @@ public final class Settings {
          * @hide
          */
         public static final String VOLUME_ROCKER_WAKE = "volume_rocker_wake";
-        
+
         /**
          * Whether the torch launch gesture to double tap or long press the power button when the
          * screen is off should be enabled. *
@@ -5285,6 +5285,13 @@ public final class Settings {
          * @hide
          */
         public static final String TORCH_POWER_BUTTON_GESTURE = "torch_power_button_gesture";
+
+        
+        /**
+         * Use doubletap as doze pulse triggers
+         * @hide
+         */
+        public static final String DOZE_TRIGGER_DOUBLETAP = "doze_trigger_doubletap";
 
         /**
          * These are all public system settings
