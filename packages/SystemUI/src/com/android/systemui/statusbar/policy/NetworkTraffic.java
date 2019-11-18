@@ -31,6 +31,7 @@ import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.os.Message;
@@ -38,13 +39,11 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.android.systemui.Dependency;
 import com.android.systemui.R;
-import com.android.systemui.plugins.DarkIconDispatcher;
-import com.android.systemui.plugins.DarkIconDispatcher.DarkReceiver;
 
 /*
 *
@@ -52,7 +51,7 @@ import com.android.systemui.plugins.DarkIconDispatcher.DarkReceiver;
 * to only use it for a single boolean. 32-bits is plenty of room for what we need it to do.
 *
 */
-public class NetworkTrafficSB extends TextView  implements DarkReceiver {
+public class NetworkTraffic extends TextView {
 
     private static final int INTERVAL = 1500; //ms
     private static final int BOTH = 0;
@@ -79,16 +78,16 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
     private int txtSize;
     private int txtImgPadding;
     private int mTrafficType;
-    private int mAutoHideThreshold;
-    private int mTintColor;
-    private int mVisibleState = -1;
-    private boolean mTrafficVisible = false;
-    private boolean mSystemIconVisible = true;
     private boolean mShowArrow;
-
+    private int mAutoHideThreshold;
+    private int mNetTrafSize;
+    private int mTintColor;
+    private boolean mTrafficVisible = false;
     private boolean mScreenOn = true;
     private boolean iBytes;
     private boolean oBytes;
+
+    private boolean mTrafficInHeaderView;
 
     private Handler mTrafficHandler = new Handler() {
         @Override
@@ -118,7 +117,7 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
 
             if (shouldHide(rxData, txData, timeDelta)) {
                 setText("");
-                setVisibility(View.GONE);
+                mTrafficVisible = false;
             } else {
                 String output;
                 if (mTrafficType == UP){
@@ -174,12 +173,13 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
                 }
                 // Update view if there's anything new to show
                 if (!output.contentEquals(getText())) {
-                    setTextSize(TypedValue.COMPLEX_UNIT_PX, (float)txtSize);
+                    setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
                     setText(output);
                 }
-                setVisibility(View.VISIBLE);
+                mTrafficVisible = true;
             }
             updateVisibility();
+            updateTextSize();
             if (mShowArrow)
                 updateTrafficDrawable();
 
@@ -243,6 +243,12 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
             resolver.registerContentObserver(Settings.System
                     .getUriFor(Settings.System.NETWORK_TRAFFIC_ARROW), false,
                     this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.NETWORK_TRAFFIC_VIEW_LOCATION), false,
+                    this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.NETWORK_TRAFFIC_FONT_SIZE), false,
+                    this, UserHandle.USER_ALL);
         }
 
         /*
@@ -258,26 +264,26 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
     /*
      *  @hide
      */
-    public NetworkTrafficSB(Context context) {
+    public NetworkTraffic(Context context) {
         this(context, null);
     }
 
     /*
      *  @hide
      */
-    public NetworkTrafficSB(Context context, AttributeSet attrs) {
+    public NetworkTraffic(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
     /*
      *  @hide
      */
-    public NetworkTrafficSB(Context context, AttributeSet attrs, int defStyle) {
+    public NetworkTraffic(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         final Resources resources = getResources();
-        txtSize = resources.getDimensionPixelSize((mTrafficType == BOTH)
-					          ? R.dimen.net_traffic_multi_text_size
-						  : R.dimen.net_traffic_single_text_size);
+        txtSize = (mTrafficType == BOTH)
+                    ? resources.getDimensionPixelSize(R.dimen.net_traffic_multi_text_size)
+                    : mNetTrafSize;
         txtImgPadding = resources.getDimensionPixelSize(R.dimen.net_traffic_txt_img_padding);
         mTintColor = resources.getColor(android.R.color.white);
         Handler mHandler = new Handler();
@@ -298,7 +304,6 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
             filter.addAction(Intent.ACTION_SCREEN_ON);
             mContext.registerReceiver(mIntentReceiver, filter, null, getHandler());
         }
-        Dependency.get(DarkIconDispatcher.class).addDarkReceiver(this);
         updateSettings();
     }
 
@@ -309,7 +314,6 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
             mContext.unregisterReceiver(mIntentReceiver);
             mAttached = false;
         }
-        Dependency.get(DarkIconDispatcher.class).removeDarkReceiver(this);
     }
 
     private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
@@ -338,6 +342,12 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
     }
 
     private void updateSettings() {
+        final ContentResolver resolver = getContext().getContentResolver();
+        mTrafficInHeaderView = Settings.System.getIntForUser(resolver,
+                Settings.System.NETWORK_TRAFFIC_VIEW_LOCATION, 0,
+                UserHandle.USER_CURRENT) == 1;
+        updateVisibility();
+        updateTextSize();
         if (mIsEnabled) {
             if (mAttached) {
                 totalRxBytes = TrafficStats.getTotalRxBytes();
@@ -349,7 +359,6 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
         } else {
             clearHandlerCallbacks();
         }
-        setVisibility(View.GONE);
     }
 
     private void setMode() {
@@ -365,7 +374,13 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
                 UserHandle.USER_CURRENT);
         mShowArrow = Settings.System.getIntForUser(resolver,
                 Settings.System.NETWORK_TRAFFIC_ARROW, 1,
+	        UserHandle.USER_CURRENT) == 1;
+        mTrafficInHeaderView = Settings.System.getIntForUser(resolver,
+                Settings.System.NETWORK_TRAFFIC_VIEW_LOCATION, 0,
                 UserHandle.USER_CURRENT) == 1;
+        mNetTrafSize = Settings.System.getIntForUser(resolver,
+                Settings.System.NETWORK_TRAFFIC_FONT_SIZE, 42,
+                UserHandle.USER_CURRENT);
     }
 
     private void clearHandlerCallbacks() {
@@ -422,60 +437,17 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
         setTextColor(mTintColor);
     }
 
-    public void onDensityOrFontScaleChanged() {
-        final Resources resources = getResources();
-        txtSize = resources.getDimensionPixelSize((mTrafficType == BOTH)
-						  ? R.dimen.net_traffic_multi_text_size
-						  : R.dimen.net_traffic_single_text_size);
-        txtImgPadding = resources.getDimensionPixelSize(R.dimen.net_traffic_multi_text_size);
+    private void updateTextSize() {
+        if (mTrafficType == BOTH) {
+            txtSize = getResources().getDimensionPixelSize(R.dimen.net_traffic_multi_text_size);
+        } else {
+            txtSize = mNetTrafSize;
+        }
         setTextSize(TypedValue.COMPLEX_UNIT_PX, (float)txtSize);
-        setCompoundDrawablePadding(txtImgPadding);
-    }
-
-    @Override
-    public void onDarkChanged(Rect area, float darkIntensity, int tint) {
-        mTintColor = DarkIconDispatcher.getTint(area, this, tint);
-        setTextColor(mTintColor);
-        updateTrafficDrawable();
-    }
-
-    @Override
-    public String getSlot() {
-        return SLOT;
-    }
-
-    @Override
-    public boolean isIconVisible() {
-        return mIsEnabled;
-    }
-
-    @Override
-    public int getVisibleState() {
-        return mVisibleState;
-    }
-
-    @Override
-    public void setVisibleState(int state, boolean animate) {
-        if (state == mVisibleState) {
-            return;
-        }
-        mVisibleState = state;
-
-        switch (state) {
-            case STATE_ICON:
-                mSystemIconVisible = true;
-                break;
-            case STATE_DOT:
-            case STATE_HIDDEN:
-            default:
-                mSystemIconVisible = false;
-                break;
-        }
-        updateVisibility();
     }
 
     private void updateVisibility() {
-        if (mIsEnabled && mTrafficVisible && mSystemIconVisible && !mTrafficInHeaderView) {
+        if (mIsEnabled && mTrafficVisible && mTrafficInHeaderView) {
             setVisibility(View.VISIBLE);
         } else {
             setText("");
@@ -483,14 +455,15 @@ public class NetworkTrafficSB extends TextView  implements DarkReceiver {
         }
     }
 
-    @Override
-    public void setStaticDrawableColor(int color) {
-        mTintColor = color;
-        setTextColor(mTintColor);
-        updateTrafficDrawable();
-    }
-
-    @Override
-    public void setDecorColor(int color) {
+    public void onDensityOrFontScaleChanged() {
+        final Resources resources = getResources();
+        txtSize = (mTrafficType == BOTH)
+                    ? resources.getDimensionPixelSize(R.dimen.net_traffic_multi_text_size)
+                    : mNetTrafSize;
+        txtImgPadding = resources.getDimensionPixelSize(R.dimen.net_traffic_txt_img_padding);
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, (float)txtSize);
+        setCompoundDrawablePadding(txtImgPadding);
+        updateTextSize();
     }
 }
+
