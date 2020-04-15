@@ -169,7 +169,60 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
     private final ScreenshotHelper mScreenshotHelper;
     private final ScreenRecordHelper mScreenRecordHelper;
     private final ActivityStarter mActivityStarter;
-    private GlobalActionsPanelPlugin mPanelPlugin;
+    private final SysuiColorExtractor mSysuiColorExtractor;
+    private final IStatusBarService mStatusBarService;
+    private final NotificationShadeWindowController mNotificationShadeWindowController;
+    private GlobalActionsPanelPlugin mWalletPlugin;
+    private Optional<ControlsUiController> mControlsUiControllerOptional;
+    private final IWindowManager mIWindowManager;
+    private final Executor mBackgroundExecutor;
+    private List<ControlsServiceInfo> mControlsServiceInfos = new ArrayList<>();
+    private Optional<ControlsController> mControlsControllerOptional;
+    private final RingerModeTracker mRingerModeTracker;
+    private int mDialogPressDelay = DIALOG_PRESS_DELAY; // ms
+    private Handler mMainHandler;
+    private CurrentUserContextTracker mCurrentUserContextTracker;
+    @VisibleForTesting
+    boolean mShowLockScreenCardsAndControls = false;
+    private boolean mPowerMenuSecure = false;
+
+    @VisibleForTesting
+    public enum GlobalActionsEvent implements UiEventLogger.UiEventEnum {
+        @UiEvent(doc = "The global actions / power menu surface became visible on the screen.")
+        GA_POWER_MENU_OPEN(337),
+
+        @UiEvent(doc = "The global actions / power menu surface was dismissed.")
+        GA_POWER_MENU_CLOSE(471),
+
+        @UiEvent(doc = "The global actions bugreport button was pressed.")
+        GA_BUGREPORT_PRESS(344),
+
+        @UiEvent(doc = "The global actions bugreport button was long pressed.")
+        GA_BUGREPORT_LONG_PRESS(345),
+
+        @UiEvent(doc = "The global actions emergency button was pressed.")
+        GA_EMERGENCY_DIALER_PRESS(346),
+
+        @UiEvent(doc = "The global actions screenshot button was pressed.")
+        GA_SCREENSHOT_PRESS(347),
+
+        @UiEvent(doc = "The global actions screenshot button was long pressed.")
+        GA_SCREENSHOT_LONG_PRESS(348);
+
+        private final int mId;
+
+        GlobalActionsEvent(int id) {
+            mId = id;
+        }
+
+        @Override
+        public int getId() {
+            return mId;
+        }
+    }
+
+    // Power menu customizations
+    private String[] mActions;
 
     /**
      * @param context everything needs a context :(
@@ -444,6 +497,9 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
         dialog.setOnDismissListener(this);
         dialog.setOnShowListener(this);
 
+        mPowerMenuSecure = Settings.System.getIntForUser(mContext.getContentResolver(), 
+                        Settings.System.LOCKSCREEN_POWERMENU_SECURE, 0,  UserHandle.USER_CURRENT) != 0;
+
         return dialog;
     }
 
@@ -469,7 +525,71 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
     }
 
     public void destroy() {
-        Dependency.get(ConfigurationController.class).removeCallback(this);
+        mConfigurationController.removeCallback(this);
+    }
+
+    @Nullable
+    private GlobalActionsPanelPlugin.PanelViewController getWalletViewController() {
+        if (mWalletPlugin == null) {
+            return null;
+        }
+        return mWalletPlugin.onPanelShown(this, !mKeyguardStateController.isUnlocked());
+    }
+
+    private boolean rebootAction(boolean safeMode, String reason) {
+        if (mPowerMenuSecure && mKeyguardStateController.isMethodSecure() && mKeyguardStateController.isShowing()) {
+              mActivityStarter.postQSRunnableDismissingKeyguard(() -> {
+                mWindowManagerFuncs.reboot(safeMode, reason);
+            });
+            return true;
+        } else {
+            mWindowManagerFuncs.reboot(safeMode, reason);
+            return true;
+        }
+    }
+
+    /**
+     * Implements {@link GlobalActionsPanelPlugin.Callbacks#dismissGlobalActionsMenu()}, which is
+     * called when the quick access wallet requests dismissal.
+     */
+    @Override
+    public void dismissGlobalActionsMenu() {
+        dismissDialog();
+    }
+
+    /**
+     * Implements {@link GlobalActionsPanelPlugin.Callbacks#dismissGlobalActionsMenu()}, which is
+     * called when the quick access wallet requests that an intent be started (with lock screen
+     * shown first if needed).
+     */
+    @Override
+    public void startPendingIntentDismissingKeyguard(PendingIntent pendingIntent) {
+        mActivityStarter.startPendingIntentDismissingKeyguard(pendingIntent);
+    }
+
+    @VisibleForTesting
+    protected final class PowerOptionsAction extends SinglePressAction {
+        private PowerOptionsAction() {
+            super(com.android.systemui.R.drawable.ic_settings_power,
+                    R.string.global_action_power_options);
+        }
+
+        @Override
+        public boolean showDuringKeyguard() {
+            return true;
+        }
+
+        @Override
+        public boolean showBeforeProvisioning() {
+            return true;
+        }
+
+        @Override
+        public void onPress() {
+            if (mDialog != null) {
+                mDialog.showPowerOptionsMenu();
+            }
+        }
     }
 
     private final class PowerAction extends SinglePressAction implements LongPressAction {
@@ -480,10 +600,8 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
 
         @Override
         public boolean onLongPress() {
-            UserManager um = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
-            if (!um.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT)) {
-                mWindowManagerFuncs.reboot(true);
-                return true;
+            if (!mUserManager.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT)) {
+                return rebootAction(true, null);
             }
             return false;
         }
@@ -584,10 +702,8 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
 
         @Override
         public boolean onLongPress() {
-            UserManager um = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
-            if (!um.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT)) {
-                mWindowManagerFuncs.reboot(true);
-                return true;
+            if (!mUserManager.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT)) {
+                return rebootAction(true, null);
             }
             return false;
         }
@@ -604,7 +720,11 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
 
         @Override
         public void onPress() {
-            mWindowManagerFuncs.reboot(false);
+            if (mDialog != null && shouldShowRestartSubmenu()) {
+                mDialog.showRestartOptionsMenu();
+            } else {
+                rebootAction(false, null);
+            }
         }
     }
 
@@ -614,19 +734,11 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
         }
 
         @Override
-        public void onPress() {
-            // Add a little delay before executing, to give the
-            // dialog a chance to go away before it takes a
-            // screenshot.
-            // TODO: instead, omit global action dialog layer
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScreenshotHelper.takeScreenshot(1, true, true, mHandler);
-                    MetricsLogger.action(mContext,
-                            MetricsEvent.ACTION_SCREENSHOT_POWER_MENU);
-                }
-            }, 500);
+        public boolean onLongPress() {
+            if (!mUserManager.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT)) {
+                return rebootAction(true, null);
+            }
+            return false;
         }
 
         @Override
@@ -640,13 +752,8 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
         }
 
         @Override
-        public boolean onLongPress() {
-            if (FeatureFlagUtils.isEnabled(mContext, FeatureFlagUtils.SCREENRECORD_LONG_PRESS)) {
-                mScreenRecordHelper.launchRecordPrompt();
-            } else {
-                onPress();
-            }
-            return true;
+        public void onPress() {
+            rebootAction(false, null);
         }
     }
 
@@ -664,14 +771,120 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
                 return true;
             }
 
-            @Override
-            public boolean showBeforeProvisioning() {
-                return true;
-            }
-        };
+        @Override
+        public void onPress() {
+            rebootAction(false, PowerManager.REBOOT_RECOVERY);
+        }
     }
 
     private class BugReportAction extends SinglePressAction implements LongPressAction {
+
+        public BugReportAction() {
+            super(R.drawable.ic_lock_bugreport, R.string.bugreport_title);
+        }
+
+        @Override
+        public void onPress() {
+            rebootAction(false, PowerManager.REBOOT_BOOTLOADER);
+        }
+    }
+
+    private final class RestartFastbootAction extends SinglePressAction {
+        private RestartFastbootAction() {
+        }
+
+        @Override
+        public boolean showDuringKeyguard() {
+            return true;
+        }
+
+        @Override
+        public boolean showBeforeProvisioning() {
+            return true;
+        }
+
+        @Override
+        public void onPress() {
+            rebootAction(false, PowerManager.REBOOT_FASTBOOT);
+        }
+    }
+
+    private final class RestartDownloadAction extends SinglePressAction {
+        private RestartDownloadAction() {
+            super(com.android.systemui.R.drawable.ic_lock_restart_bootloader,
+                    com.android.systemui.R.string.global_action_restart_download);
+        }
+
+        @Override
+        public boolean showDuringKeyguard() {
+            return true;
+        }
+
+        @Override
+        public boolean showBeforeProvisioning() {
+            return true;
+        }
+
+        @Override
+        public void onPress() {
+            rebootAction(false, PowerManager.REBOOT_DOWNLOAD);
+        }
+    }
+
+    @VisibleForTesting
+    class ScreenshotAction extends SinglePressAction implements LongPressAction {
+
+        public ScreenshotAction() {
+            super(R.drawable.ic_screenshot, R.string.global_action_screenshot);
+        }
+
+        @Override
+        public void onPress() {
+            // Add a little delay before executing, to give the
+            // dialog a chance to go away before it takes a
+            // screenshot.
+            // TODO: instead, omit global action dialog layer
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScreenshotHelper.takeScreenshot(TAKE_SCREENSHOT_FULLSCREEN, true, true,
+                            SCREENSHOT_GLOBAL_ACTIONS, mHandler, null);
+                    mMetricsLogger.action(MetricsEvent.ACTION_SCREENSHOT_POWER_MENU);
+                    mUiEventLogger.log(GlobalActionsEvent.GA_SCREENSHOT_PRESS);
+                }
+            }, mDialogPressDelay);
+        }
+
+        @Override
+        public boolean showDuringKeyguard() {
+            return true;
+        }
+
+        @Override
+        public boolean showBeforeProvisioning() {
+            return false;
+        }
+
+        @Override
+        public boolean onLongPress() {
+            if (FeatureFlagUtils.isEnabled(mContext, FeatureFlagUtils.SCREENRECORD_LONG_PRESS)) {
+                mUiEventLogger.log(GlobalActionsEvent.GA_SCREENSHOT_LONG_PRESS);
+                mScreenRecordHelper.launchRecordPrompt();
+            } else {
+                mScreenshotHelper.takeScreenshot(TAKE_SCREENSHOT_SELECTED_REGION, true, true,
+                        mHandler, null);
+            }
+            return true;
+        }
+    }
+
+    @VisibleForTesting
+    ScreenshotAction makeScreenshotActionForTesting() {
+        return new ScreenshotAction();
+    }
+
+    @VisibleForTesting
+    class BugReportAction extends SinglePressAction implements LongPressAction {
 
         public BugReportAction() {
             super(R.drawable.ic_lock_bugreport, R.string.bugreport_title);
@@ -686,20 +899,22 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
             }
             // Add a little delay before executing, to give the
             // dialog a chance to go away before it takes a
-            // screenshot.
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         // Take an "interactive" bugreport.
-                        MetricsLogger.action(mContext,
+                        mMetricsLogger.action(
                                 MetricsEvent.ACTION_BUGREPORT_FROM_POWER_MENU_INTERACTIVE);
-                        ActivityManager.getService().requestBugReport(
-                                ActivityManager.BUGREPORT_OPTION_INTERACTIVE);
+                        mUiEventLogger.log(GlobalActionsEvent.GA_BUGREPORT_PRESS);
+                        if (!mIActivityManager.launchBugReportHandlerApp()) {
+                            Log.w(TAG, "Bugreport handler could not be launched");
+                            mIActivityManager.requestInteractiveBugReport();
+                        }
                     } catch (RemoteException e) {
                     }
                 }
-            }, 500);
+            }, mDialogPressDelay);
         }
 
         @Override
