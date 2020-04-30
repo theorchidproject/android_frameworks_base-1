@@ -5646,6 +5646,16 @@ public abstract class Context {
     public static final String PEOPLE_SERVICE = "people";
 
     /**
+     * Use with {@link #getSystemService} to retrieve a
+     * {@link android.app.AppLockManager} for accessing and setting locked apps state.
+     *
+     * @hide
+     * @see #getSystemService
+     * @see android.app.AppLockManager
+     */
+    public static final String APPLOCK_SERVICE = "applock";
+
+    /**
      * Use with {@link #getSystemService(String)} to access device state service.
      *
      * @see #getSystemService(String)
