@@ -72,9 +72,10 @@
                     android:textAppearance="@style/TextAppearance.StatusBar.Clock"
                     android:singleLine="true"
                     android:visibility="gone"
-                    android:paddingStart="12dp"
+                    android:layout_marginStart="8dp"
                     android:gravity="center_horizontal|start"
                     />
+
 
             <LinearLayout
                 android:id="@+id/status_bar_left_side"
@@ -87,14 +88,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout="@layout/operator_name" />
-           
+
+
                 <com.android.keyguard.AlphaOptimizedLinearLayout
                     android:id="@+id/left_icon_area"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="horizontal" >
 
-                    <com.android.systemui.statusbar.carrierlabel.CarrierLabel
+                    <com.android.systemui.zenx.carrierlabel.CarrierLabel
                         android:id="@+id/statusbar_carrier_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -106,8 +108,8 @@
                         android:visibility="gone"
                         android:singleLine="true"/>
 
-                    <com.android.systemui.statusbar.logo.LogoImageView
-                        android:id="@+id/tenx_logo"
+                    <com.android.systemui.zenx.logo.LogoImageView
+                        android:id="@+id/zenx_logo"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:paddingStart="3dp"
@@ -119,6 +121,7 @@
                 <com.android.systemui.statusbar.AlphaOptimizedFrameLayout
                     android:id="@+id/notification_icon_area"
                     android:layout_width="0dp"
+                    android:paddingStart="-6dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="horizontal"
@@ -165,7 +168,7 @@
             android:layout_height="match_parent"
             android:singleLine="true"
             android:visibility="gone"
-            android:paddingStart="@dimen/status_bar_clock_starting_padding"
+            android:paddingStart="@dimen/status_bar_right_clock_starting_padding"
             android:paddingEnd="@dimen/status_bar_clock_end_padding"
             android:gravity="center_vertical|start"
             />
@@ -194,6 +197,14 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout="@layout/emergency_cryptkeeper_text"
+    />
+
+    <ViewStub
+        android:id="@+id/ticker_stub"
+        android:inflatedId="@+id/ticker"
+        android:layout="@layout/status_bar_ticker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
     />
 
     <com.android.systemui.statusbar.policy.BatteryBarController
