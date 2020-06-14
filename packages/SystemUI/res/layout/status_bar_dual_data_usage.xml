@@ -87,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout="@layout/operator_name" />
-           
+
                 <com.android.keyguard.AlphaOptimizedLinearLayout
                     android:id="@+id/left_icon_area"
                     android:layout_width="wrap_content"
@@ -154,7 +154,7 @@
             android:gravity="center_vertical|end"
             >
 
-            <include layout="@layout/system_icons" />
+            <include layout="@layout/system_icons_data_usage" />
 
         </com.android.keyguard.AlphaOptimizedLinearLayout>
 
@@ -200,7 +200,7 @@
         android:id="@+id/battery_bar"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_gravity="top" />
+        android:layout_gravity="top"/>
 
     <com.android.systemui.statusbar.policy.BatteryBarController
         android:id="@+id/battery_bar_1"
