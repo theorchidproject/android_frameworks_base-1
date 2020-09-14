@@ -7456,5 +7456,9 @@ message MetricsEvent {
 
     // EXTENDEDSettings constant
     EXTENDED = 2542;
+
+    // Awaken Settings constant
+    AWAKEN = 6299;
+
   }
 }
