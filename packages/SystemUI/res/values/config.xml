@@ -82,7 +82,7 @@
 
     <!-- Tiles native to System UI. Order should match "quick_settings_tiles_default" -->
     <string name="quick_settings_tiles_stock" translatable="false">
-       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles
+       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles,vpn
     </string>
 
     <!-- The tiles to display in QuickSettings -->
@@ -428,14 +428,16 @@
         <item>60</item>
         <item>90</item>
         <item>120</item>
-        <item>150</item>
+		<item>300</item>
+		<item>720</item>
+		<item>1440</item>
     </integer-array>
 
     <!-- Smart replies in notifications: Whether smart replies in notifications are enabled. -->
     <bool name="config_smart_replies_in_notifications_enabled">true</bool>
 
     <!-- Smart replies in notifications: Whether we disable the feature unless the app targets P -->
-    <bool name="config_smart_replies_in_notifications_requires_targeting_p">true</bool>
+    <bool name="config_smart_replies_in_notifications_requires_targeting_p">false</bool>
 
     <!-- Smart replies in notifications: Maximum number of times SmartReplyView will try to find a
          better (narrower) line-break for a double-line smart reply button. -->
