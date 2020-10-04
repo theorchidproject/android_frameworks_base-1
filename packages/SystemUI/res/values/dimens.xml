@@ -16,6 +16,12 @@
 */
 -->
 <resources>
+
+
+    <!-- Additional gesture navbar lengths -->
+    <dimen name="navigation_home_handle_width_medium">110dp</dimen>
+    <dimen name="navigation_home_handle_width_long">140dp</dimen>
+    
     <!-- Recommended minimum clickable element dimension -->
     <dimen name="min_clickable_item_size">48dp</dimen>
 
