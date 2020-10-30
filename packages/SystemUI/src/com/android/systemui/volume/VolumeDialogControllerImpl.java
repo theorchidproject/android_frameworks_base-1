@@ -215,6 +215,11 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
         mAdaptivePlaybackTimeout = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT, 30000, UserHandle.USER_CURRENT);
 
+        mAdaptivePlaybackEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.ADAPTIVE_PLAYBACK_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
+        mAdaptivePlaybackTimeout = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT, 30000, UserHandle.USER_CURRENT);
+
         boolean accessibilityVolumeStreamActive = accessibilityManager
                 .isAccessibilityVolumeStreamActive();
         mVolumeController.setA11yMode(accessibilityVolumeStreamActive ?
