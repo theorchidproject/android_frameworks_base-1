@@ -166,6 +166,63 @@ public class NotificationHeaderViewWrapper extends NotificationViewWrapper {
         }
     }
 
+    public void applyConversationSkin() {
+        //since we don't want this anymore...
+        /*
+        if (mAppNameText != null) {
+            mAppNameText.setTextAppearance(
+                    com.android.internal.R.style
+                            .TextAppearance_DeviceDefault_Notification_Conversation_AppName);
+            ViewGroup.MarginLayoutParams layoutParams =
+                    (ViewGroup.MarginLayoutParams) mAppNameText.getLayoutParams();
+            layoutParams.setMarginStart(0);
+        }
+        if (mIconContainer != null) {
+            ViewGroup.MarginLayoutParams layoutParams =
+                    (ViewGroup.MarginLayoutParams) mIconContainer.getLayoutParams();
+            layoutParams.width =
+                    mIconContainer.getContext().getResources().getDimensionPixelSize(
+                            com.android.internal.R.dimen.conversation_content_start);
+            final int marginStart =
+                    mIconContainer.getContext().getResources().getDimensionPixelSize(
+                            com.android.internal.R.dimen.notification_content_margin_start);
+            layoutParams.setMarginStart(marginStart * -1);
+        }
+        if (mIcon != null) {
+            ViewGroup.MarginLayoutParams layoutParams =
+                    (ViewGroup.MarginLayoutParams) mIcon.getLayoutParams();
+            layoutParams.setMarginEnd(0);
+        }*/
+    }
+
+    public void clearConversationSkin() {
+        if (mAppNameText != null) {
+            final int textAppearance = Utils.getThemeAttr(
+                    mAppNameText.getContext(),
+                    com.android.internal.R.attr.notificationHeaderTextAppearance,
+                    com.android.internal.R.style.TextAppearance_DeviceDefault_Notification_Info);
+            mAppNameText.setTextAppearance(textAppearance);
+            ViewGroup.MarginLayoutParams layoutParams =
+                    (ViewGroup.MarginLayoutParams) mAppNameText.getLayoutParams();
+            final int marginStart = mAppNameText.getContext().getResources().getDimensionPixelSize(
+                    com.android.internal.R.dimen.notification_header_app_name_margin_start);
+            layoutParams.setMarginStart(marginStart);
+        }
+        if (mIconContainer != null) {
+            ViewGroup.MarginLayoutParams layoutParams =
+                    (ViewGroup.MarginLayoutParams) mIconContainer.getLayoutParams();
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            layoutParams.setMarginStart(0);
+        }
+        if (mIcon != null) {
+            ViewGroup.MarginLayoutParams layoutParams =
+                    (ViewGroup.MarginLayoutParams) mIcon.getLayoutParams();
+            final int marginEnd = mIcon.getContext().getResources().getDimensionPixelSize(
+                    com.android.internal.R.dimen.notification_header_icon_margin_end);
+            layoutParams.setMarginEnd(marginEnd);
+        }
+    }
+
     /**
      * Adds the remaining TransformTypes to the TransformHelper. This is done to make sure that each
      * child is faded automatically and doesn't have to be manually added.
