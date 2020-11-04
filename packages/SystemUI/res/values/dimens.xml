@@ -574,9 +574,6 @@
     <!-- Size of the face pile shown on one-line (children of a group) conversation notifications -->
     <dimen name="conversation_single_line_face_pile_size">20dp</dimen>
 
-    <!-- Size of the avatars within a face pile shown on one-line (children of a group) conversation notifications -->
-    <dimen name="conversation_single_line_face_pile_avatar_size">17dp</dimen>
-
     <!-- Size of an avatar shown on one-line (children of a group) conversation notifications -->
     <dimen name="conversation_single_line_avatar_size">24dp</dimen>
 
