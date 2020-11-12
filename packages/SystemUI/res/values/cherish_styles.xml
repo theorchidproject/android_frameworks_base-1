@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2020-22 The CherishOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <!-- Tri-state UI -->
+    <style name="qs_theme" parent="Theme.SystemUI.QuickSettings">
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <!-- Pure Tuner Theme-->
+    <style name="ExTunerSettings" parent="@android:style/Theme.DeviceDefault.Settings">
+        <item name="preferenceTheme">@style/TunerPreferenceTheme</item>
+    </style>
+
+    <!-- reTicker -->
+    <style name="TextAppearance.Notifications.reTicker" parent="@*android:style/TextAppearance.StatusBar.Icon">
+        <item name="android:textSize">14dp</item>
+        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+    </style>
+</resources>
