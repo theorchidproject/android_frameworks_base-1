@@ -215,6 +215,12 @@ final class DefaultPermissionGrantPolicy {
         NEARBY_DEVICES_PERMISSIONS.add(Manifest.permission.UWB_RANGING);
     }
 
+    private static final Set<String> WALLPAPER_PERMISSIONS = new ArraySet<>();
+    static {
+        WALLPAPER_PERMISSIONS.add(Manifest.permission.BIND_WALLPAPER);
+        WALLPAPER_PERMISSIONS.add(Manifest.permission.SET_WALLPAPER_COMPONENT);
+    }
+
     private static final int MSG_READ_DEFAULT_PERMISSION_EXCEPTIONS = 1;
 
     private static final String ACTION_TRACK = "com.android.fitness.TRACK";
@@ -880,6 +886,50 @@ final class DefaultPermissionGrantPolicy {
         grantSystemFixedPermissionsToSystemPackage(pm,
                 MidiManager.BLUETOOTH_MIDI_SERVICE_PACKAGE, userId,
                 NEARBY_DEVICES_PERMISSIONS);
+
+       
+        // Microg Play Services
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.google.android.gms", userId,
+                SENSORS_PERMISSIONS, CALENDAR_PERMISSIONS, CAMERA_PERMISSIONS, CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS, MICROPHONE_PERMISSIONS, PHONE_PERMISSIONS, SMS_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
+
+        // MicroG Contacts Sync
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.google.android.syncadapters.contacts", userId,
+                CONTACTS_PERMISSIONS);
+
+
+        // MicroG Play Framework
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.google.android.gsf", userId,
+                CONTACTS_PERMISSIONS, PHONE_PERMISSIONS);
+
+        // Aurora Store
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.android.vending", userId,
+                CONTACTS_PERMISSIONS, PHONE_PERMISSIONS, ALWAYS_LOCATION_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
+        // Simple message
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.simplemobiletools.simplemessenger", userId,
+                CONTACTS_PERMISSIONS, PHONE_PERMISSIONS, MICROPHONE_PERMISSIONS, ALWAYS_LOCATION_PERMISSIONS,
+                SMS_PERMISSIONS);
+
+        // Etar
+        grantSystemFixedPermissionsToSystemPackage(pm, "org.lineage.etar", userId,
+                CALENDAR_PERMISSIONS, CONTACTS_PERMISSIONS, PHONE_PERMISSIONS,STORAGE_PERMISSIONS);
+
+        // Simple gallery
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.simplemobiletools.gallery.pro", userId,
+                 STORAGE_PERMISSIONS);
+
+        // Audio Notes
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.certified.audionote", userId,
+                MICROPHONE_PERMISSIONS;
+
+        // Bromite
+        grantSystemFixedPermissionsToSystemPackage(pm, "org.bromite.bromite", userId,
+                CONTACTS_PERMISSIONS, STORAGE_PERMISSIONS);
+
     }
 
     private String getDefaultSystemHandlerActivityPackageForCategory(PackageManagerWrapper pm,
