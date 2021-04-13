@@ -5301,7 +5301,12 @@ public final class Settings {
          */
         public static final String RETICKER_COLORED = "reticker_colored";
 
-       
+        /**
+         * Screenshot image compression
+         * @hide
+         */
+        public static final String SCREENSHOT_COMPRESSION = "screenshot_compression";
+
         /**
          * These are all public system settings
          *
