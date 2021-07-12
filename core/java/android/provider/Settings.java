@@ -5532,6 +5532,13 @@ public final class Settings {
         public static final String QS_FOOTER_SHOW_SERVICES = "qs_footer_show_services";
 
         /**
+         * The amount of time in milliseconds before the device goes to sleep or begins
+         * to dream after a period of inactivity in the keyguard.
+         * @hide
+         */
+        public static final String LOCKSCREEN_TIMEOUT = "lockscreen_timeout";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
