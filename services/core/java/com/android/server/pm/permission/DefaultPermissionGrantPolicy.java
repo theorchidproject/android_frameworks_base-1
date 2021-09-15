@@ -642,6 +642,9 @@ final class DefaultPermissionGrantPolicy {
             }
         }
 
+        // AuroraServices
+        grantPermissionsToSystemPackage(pm, "com.aurora.services", userId, STORAGE_PERMISSIONS);
+
         // Cell Broadcast Receiver
         grantSystemFixedPermissionsToSystemPackage(pm,
                 getDefaultSystemHandlerActivityPackage(pm, Intents.SMS_CB_RECEIVED_ACTION, userId),

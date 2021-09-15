@@ -133,36 +133,52 @@ public class ZygoteInit {
      */
     private static ClassLoader sCachedSystemServerClassLoader = null;
 
-    static void preload(TimingsTraceLog bootTimingsTraceLog) {
+    static void preload(TimingsTraceLog bootTimingsTraceLog, boolean fullPreload) {
         Log.d(TAG, "begin preload");
         bootTimingsTraceLog.traceBegin("BeginPreload");
-        beginPreload();
+        beginPreload(fullPreload);
         bootTimingsTraceLog.traceEnd(); // BeginPreload
-        bootTimingsTraceLog.traceBegin("PreloadClasses");
-        preloadClasses();
-        bootTimingsTraceLog.traceEnd(); // PreloadClasses
-        bootTimingsTraceLog.traceBegin("CacheNonBootClasspathClassLoaders");
-        cacheNonBootClasspathClassLoaders();
-        bootTimingsTraceLog.traceEnd(); // CacheNonBootClasspathClassLoaders
-        bootTimingsTraceLog.traceBegin("PreloadResources");
-        preloadResources();
-        bootTimingsTraceLog.traceEnd(); // PreloadResources
-        Trace.traceBegin(Trace.TRACE_TAG_DALVIK, "PreloadAppProcessHALs");
-        nativePreloadAppProcessHALs();
-        Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
-        Trace.traceBegin(Trace.TRACE_TAG_DALVIK, "PreloadGraphicsDriver");
-        maybePreloadGraphicsDriver();
-        Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
+        if (fullPreload) {
+            bootTimingsTraceLog.traceBegin("PreloadClasses");
+            preloadClasses();
+            bootTimingsTraceLog.traceEnd(); // PreloadClasses
+        }
+        if (fullPreload) {
+            bootTimingsTraceLog.traceBegin("CacheNonBootClasspathClassLoaders");
+            cacheNonBootClasspathClassLoaders();
+            bootTimingsTraceLog.traceEnd(); // CacheNonBootClasspathClassLoaders
+        }
+        if (fullPreload) {
+            bootTimingsTraceLog.traceBegin("PreloadResources");
+            preloadResources();
+            bootTimingsTraceLog.traceEnd(); // PreloadResources
+        }
+        if (fullPreload) {
+            Trace.traceBegin(Trace.TRACE_TAG_DALVIK, "PreloadAppProcessHALs");
+            nativePreloadAppProcessHALs();
+            Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
+        }
+        if (fullPreload) {
+            Trace.traceBegin(Trace.TRACE_TAG_DALVIK, "PreloadGraphicsDriver");
+            maybePreloadGraphicsDriver();
+            Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
+        }
         preloadSharedLibraries();
         preloadTextResources();
-        // Ask the WebViewFactory to do any initialization that must run in the zygote process,
-        // for memory sharing purposes.
-        WebViewFactory.prepareWebViewInZygote();
-        endPreload();
-        warmUpJcaProviders();
+        if (fullPreload) {
+            // Ask the WebViewFactory to do any initialization that must run in the zygote process,
+            // for memory sharing purposes.
+            WebViewFactory.prepareWebViewInZygote();
+        }
+        endPreload(fullPreload);
+        warmUpJcaProviders(fullPreload);
         Log.d(TAG, "end preload");
 
         sPreloadComplete = true;
+    }
+
+    static void preload(TimingsTraceLog bootTimingsTraceLog) {
+        preload(bootTimingsTraceLog, true);
     }
 
     static void lazyPreload() {
@@ -172,14 +188,14 @@ public class ZygoteInit {
         preload(new TimingsTraceLog("ZygoteInitTiming_lazy", Trace.TRACE_TAG_DALVIK));
     }
 
-    private static void beginPreload() {
+    private static void beginPreload(boolean fullPreload) {
         Log.i(TAG, "Calling ZygoteHooks.beginPreload()");
 
-        ZygoteHooks.onBeginPreload();
+        ZygoteHooks.onBeginPreload(fullPreload);
     }
 
-    private static void endPreload() {
-        ZygoteHooks.onEndPreload();
+    private static void endPreload(boolean fullPreload) {
+        ZygoteHooks.onEndPreload(fullPreload);
 
         Log.i(TAG, "Called ZygoteHooks.endPreload()");
     }
@@ -219,7 +235,7 @@ public class ZygoteInit {
      * By doing it here we avoid that each app does it when requesting a service from the provider
      * for the first time.
      */
-    private static void warmUpJcaProviders() {
+    private static void warmUpJcaProviders(boolean fullPreload) {
         long startTime = SystemClock.uptimeMillis();
         Trace.traceBegin(
                 Trace.TRACE_TAG_DALVIK, "Starting installation of AndroidKeyStoreProvider");
@@ -229,15 +245,17 @@ public class ZygoteInit {
                 + (SystemClock.uptimeMillis() - startTime) + "ms.");
         Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
 
-        startTime = SystemClock.uptimeMillis();
-        Trace.traceBegin(
-                Trace.TRACE_TAG_DALVIK, "Starting warm up of JCA providers");
-        for (Provider p : Security.getProviders()) {
-            p.warmUpServiceProvision();
+        if (fullPreload) {
+            startTime = SystemClock.uptimeMillis();
+            Trace.traceBegin(
+                    Trace.TRACE_TAG_DALVIK, "Starting warm up of JCA providers");
+            for (Provider p : Security.getProviders()) {
+                p.warmUpServiceProvision();
+            }
+            Log.i(TAG, "Warmed up JCA providers in "
+                    + (SystemClock.uptimeMillis() - startTime) + "ms.");
+            Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
         }
-        Log.i(TAG, "Warmed up JCA providers in "
-                + (SystemClock.uptimeMillis() - startTime) + "ms.");
-        Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
     }
 
     /**

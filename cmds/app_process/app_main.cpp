@@ -1,7 +1,7 @@
 /*
  * Main entry of app process.
  *
- * Starts the interpreted runtime, then starts up the application.
+ * Starts the interpreted runtime, then starts up the appliction.
  *
  */
 
@@ -85,8 +85,10 @@ public:
         AndroidRuntime* ar = AndroidRuntime::getRuntime();
         ar->callMain(mClassName, mClass, mArgs);
 
-        IPCThreadState::self()->stopProcess();
-        hardware::IPCThreadState::self()->stopProcess();
+        if (mClassName != "com.android.internal.os.ExecInit") {
+            IPCThreadState::self()->stopProcess();
+            hardware::IPCThreadState::self()->stopProcess();
+        }
     }
 
     virtual void onZygoteInit()
