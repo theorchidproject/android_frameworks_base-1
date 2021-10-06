@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
-** Copyright 2009, The Android Open Source Project
+** Copyright 2022, The Orchid  Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@
 
     <!-- The default tiles to display in QuickSettings -->
     <string name="quick_settings_tiles_default" translatable="false">
-       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,nfc,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,ambient_display,aod,caffeine,heads_up,reading_mode,sync,powershare,profiles,usb_tether,vpn
+       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles
     </string>
 
     <!-- The minimum number of tiles to display in QuickSettings -->
@@ -82,7 +82,7 @@
 
     <!-- Tiles native to System UI. Order should match "quick_settings_tiles_default" -->
     <string name="quick_settings_tiles_stock" translatable="false">
-       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,nfc,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,ambient_display,aod,caffeine,heads_up,reading_mode,sync,powershare,profiles,usb_tether,vpn
+       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles
     </string>
 
     <!-- The tiles to display in QuickSettings -->
@@ -114,7 +114,7 @@
     <integer name="heads_up_default_snooze_length_ms">80000</integer>
 
     <!-- Minimum display time for a heads up notification, in milliseconds. -->
-    <integer name="heads_up_notification_minimum_time">2000</integer>
+    <integer name="heads_up_notification_minimum_time">3000</integer>
 
     <!-- Whether to hide the notification header when the HUN is expanded. -->
     <bool name="heads_up_notification_hides_header">false</bool>
@@ -396,12 +396,12 @@
 
     <!-- Whether or not there should be dividing lines between child notifications when the
          group has been expanded. -->
-    <bool name="config_showDividersWhenGroupNotificationExpanded">false</bool>
+    <bool name="config_showDividersWhenGroupNotificationExpanded">true</bool>
 
     <!-- Whether or not the dividing lines should be shown when the container is expanding and
          collapsing. If this value is true, then the lines will only show when the container has
          been completely expanded. -->
-    <bool name="config_hideDividersDuringExpand">false</bool>
+    <bool name="config_hideDividersDuringExpand">true</bool>
 
     <!-- Whether or not child notifications that are part of a group will have shadows. -->
     <bool name="config_enableShadowOnChildNotifications">true</bool>
@@ -425,10 +425,10 @@
 
     <!-- Snooze: List of snooze values in integer minutes. -->
     <integer-array name="config_notification_snooze_times">
-        <item>30</item>
         <item>60</item>
-        <item>80</item>
+        <item>90</item>
         <item>120</item>
+        <item>150</item>
     </integer-array>
 
     <!-- Smart replies in notifications: Whether smart replies in notifications are enabled. -->
