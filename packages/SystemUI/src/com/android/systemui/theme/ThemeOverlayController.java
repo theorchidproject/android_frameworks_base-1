@@ -68,6 +68,8 @@ import com.android.systemui.monet.ColorScheme;
 import com.android.systemui.settings.UserTracker;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener;
+import com.android.systemui.monet.ColorScheme;
+import com.android.systemui.statusbar.FeatureFlags;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController.DeviceProvisionedListener;
 import com.android.systemui.util.settings.SecureSettings;
@@ -563,6 +565,11 @@ public class ThemeOverlayController extends SystemUI implements Dumpable {
         return ColorScheme.getSeedColor(wallpaperColors);
     }
 
+    private final boolean inDarkMode() {
+        return (mContext.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+    }
+
     /**
      * Given a color candidate, return an overlay definition.
      */
@@ -594,6 +601,39 @@ public class ThemeOverlayController extends SystemUI implements Dumpable {
         }
 
         return overlay.build();
+        ColorScheme colorScheme = new ColorScheme(color, inDarkMode());
+        List<Integer> list;
+        String str;
+
+        if (type == ACCENT) {
+            list = colorScheme.getAllAccentColors();
+            str = "accent";
+        } else {
+            list = colorScheme.getAllNeutralColors();
+            str = "neutral";
+        }
+
+        int size = colorScheme.getAccent1().size();
+        FabricatedOverlay.Builder builder = new FabricatedOverlay.Builder("com.android.systemui", str, "android");
+
+        for (int i = 0; i < list.size(); i++) {
+            int i5 = i % size;
+            int i6 = i / size + 1;
+
+            String str2;
+            if (i5 == 0) {
+                str2 = "android:color/system_" + str + i6 + "_10";
+            } else if (i5 == 1) {
+                str2 = "android:color/system_" + str + i6 + "_50";
+            } else {
+                str2 = "android:color/system_" + str + i6 + "_" + (i5 - 1) + "00";
+            }
+
+            builder.setResourceValue(str2, TypedValue.TYPE_INT_COLOR_ARGB8,
+                    ColorUtils.setAlphaComponent(list.get(i).intValue(), 0xFF));
+        }
+
+        return builder.build();
     }
 
     private void updateThemeOverlays() {
