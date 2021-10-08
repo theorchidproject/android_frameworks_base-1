@@ -48,8 +48,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
-import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.util.TypedValue;
 
 import androidx.annotation.NonNull;
@@ -66,8 +64,8 @@ import com.android.systemui.flags.FeatureFlags;
 import com.android.systemui.keyguard.WakefulnessLifecycle;
 import com.android.systemui.monet.ColorScheme;
 import com.android.systemui.settings.UserTracker;
-import com.android.systemui.statusbar.policy.ConfigurationController;
-import com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener;
+import com.android.systemui.monet.ColorScheme;
+import com.android.systemui.statusbar.FeatureFlags;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController.DeviceProvisionedListener;
 import com.android.systemui.util.settings.SecureSettings;
@@ -563,37 +561,48 @@ public class ThemeOverlayController extends SystemUI implements Dumpable {
         return ColorScheme.getSeedColor(wallpaperColors);
     }
 
+    private final boolean inDarkMode() {
+        return (mContext.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+    }
+
     /**
      * Given a color candidate, return an overlay definition.
      */
     protected @Nullable FabricatedOverlay getOverlay(int color, int type) {
-        mColorScheme = new ColorScheme(color, isNightMode());
-        List<Integer> colorShades = type == ACCENT
-                ? mColorScheme.getAllAccentColors() : mColorScheme.getAllNeutralColors();
-        String name = type == ACCENT ? "accent" : "neutral";
-        int paletteSize = mColorScheme.getAccent1().size();
-        FabricatedOverlay.Builder overlay =
-                new FabricatedOverlay.Builder("com.android.systemui", name, "android");
-        for (int i = 0; i < colorShades.size(); i++) {
-            int luminosity = i % paletteSize;
-            int paletteIndex = i / paletteSize + 1;
-            String resourceName;
-            switch (luminosity) {
-                case 0:
-                    resourceName = "android:color/system_" + name + paletteIndex + "_10";
-                    break;
-                case 1:
-                    resourceName = "android:color/system_" + name + paletteIndex + "_50";
-                    break;
-                default:
-                    int l = luminosity - 1;
-                    resourceName = "android:color/system_" + name + paletteIndex + "_" + l + "00";
-            }
-            overlay.setResourceValue(resourceName, TypedValue.TYPE_INT_COLOR_ARGB8,
-                    ColorUtils.setAlphaComponent(colorShades.get(i), 0xFF));
+        ColorScheme colorScheme = new ColorScheme(color, inDarkMode());
+        List<Integer> list;
+        String str;
+
+        if (type == ACCENT) {
+            list = colorScheme.getAllAccentColors();
+            str = "accent";
+        } else {
+            list = colorScheme.getAllNeutralColors();
+            str = "neutral";
         }
 
-        return overlay.build();
+        int size = colorScheme.getAccent1().size();
+        FabricatedOverlay.Builder builder = new FabricatedOverlay.Builder("com.android.systemui", str, "android");
+
+        for (int i = 0; i < list.size(); i++) {
+            int i5 = i % size;
+            int i6 = i / size + 1;
+
+            String str2;
+            if (i5 == 0) {
+                str2 = "android:color/system_" + str + i6 + "_10";
+            } else if (i5 == 1) {
+                str2 = "android:color/system_" + str + i6 + "_50";
+            } else {
+                str2 = "android:color/system_" + str + i6 + "_" + (i5 - 1) + "00";
+            }
+
+            builder.setResourceValue(str2, TypedValue.TYPE_INT_COLOR_ARGB8,
+                    ColorUtils.setAlphaComponent(list.get(i).intValue(), 0xFF));
+        }
+
+        return builder.build();
     }
 
     private void updateThemeOverlays() {
