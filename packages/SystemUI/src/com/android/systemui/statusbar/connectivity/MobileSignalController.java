@@ -266,6 +266,34 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
         notifyListeners();
     }
 
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.SHOW_FOURG_ICON), false,
+                    this, UserHandle.USER_ALL);
+            updateSettings();
+        }
+
+        /*
+         *  @hide
+         */
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
+        }
+    }
+
+    private void updateSettings() {
+        ContentResolver resolver = mContext.getContentResolver();
+        mConfig = Config.readConfig(mContext);
+        setConfiguration(mConfig);
+        notifyListeners();
+    }
+
     void setConfiguration(Config config) {
         mConfig = config;
         updateInflateSignalStrength();
