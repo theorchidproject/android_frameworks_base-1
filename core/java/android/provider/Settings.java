@@ -5301,6 +5301,13 @@ public final class Settings {
          */
         public static final String POWERMENU_EMERGENCY = "powermenu_emergency";
 
+
+        /**
+         * Whether to display 4G icon instead LTE
+         * @hide
+         */
+        public static final String SHOW_FOURG_ICON = "show_fourg_icon";
+
         /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
