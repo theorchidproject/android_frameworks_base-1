@@ -519,8 +519,8 @@ public class ThemeOverlayController extends SystemUI implements Dumpable {
         });
     }
 
-    private void reevaluateSystemTheme(boolean forceReload) {
-        final WallpaperColors currentColors = mCurrentColors.get(mUserTracker.getUserId());
+    protected void reevaluateSystemTheme(boolean forceReload) {
+        final WallpaperColors currentColors = mCurrentColors;
         final int mainColor;
         final int accentCandidate;
         if (currentColors == null) {
