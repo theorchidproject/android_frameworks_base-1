@@ -378,6 +378,57 @@ public final class ShutdownThread extends Thread {
         } else if (mReason != null && mReason.equals(PowerManager.REBOOT_RECOVERY)) {
             if (showSysuiReboot()) {
                 return null;
+            } else if (!mAdvancedReboot) {
+                if (RescueParty.isAttemptingFactoryReset()) {
+                    // We're not actually doing a factory reset yet; we're rebooting
+                    // to ask the user if they'd like to reset, so give them a less
+                    // scary dialog message.
+                    pd.setTitle(context.getText(com.android.internal.R.string.power_off));
+                    pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
+                    pd.setIndeterminate(true);
+                } else {
+                    if (showSysuiReboot()) {
+                        return null;
+                    }
+                    // Factory reset path. Set the dialog message accordingly.
+                    pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_recovery_title));
+                    pd.setMessage(context.getText(
+                                com.android.internal.R.string.reboot_to_recovery_message));
+                    pd.setIndeterminate(true);
+                }
+            }
+        } else if (mReason != null && mReason.equals(PowerManager.REBOOT_BOOTLOADER) && mAdvancedReboot) {
+            if (showSysuiReboot()) {
+                return null;
+            }
+            pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_bootloader_title));
+            pd.setMessage(context.getText(
+                        com.android.internal.R.string.reboot_to_bootloader_message));
+            pd.setIndeterminate(true);
+        } else if (mReason != null && mReason.equals(PowerManager.REBOOT_FASTBOOT) && mAdvancedReboot) {
+            if (showSysuiReboot()) {
+                return null;
+            }
+            if (SystemProperties.getBoolean("ro.fastbootd.available", false)) {
+                pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_fastboot_title));
+                pd.setMessage(context.getText(
+                            com.android.internal.R.string.reboot_to_fastboot_message));
+            } else {
+                pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_fastbootd_title));
+                pd.setMessage(context.getText(
+                            com.android.internal.R.string.reboot_to_fastbootd_message));
+            }
+            pd.setIndeterminate(true);
+        } else if (mReboot) {
+             if (showSysuiReboot()) {
+                  return null;
+             }
+            pd.setTitle(context.getText(com.android.internal.R.string.reboot_title));
+            pd.setMessage(context.getText(com.android.internal.R.string.reboot_message));
+            pd.setIndeterminate(true);
+        } else if (mReason == null && mAdvancedReboot) {
+            if (showSysuiReboot()) {
+                return null;
             }
             pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
             pd.setIndeterminate(true);

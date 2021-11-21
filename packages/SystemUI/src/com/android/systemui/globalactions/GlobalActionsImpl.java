@@ -22,6 +22,7 @@ import android.annotation.StringRes;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.PowerManager;
+import android.os.SystemProperties;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -169,11 +170,13 @@ public class GlobalActionsImpl implements GlobalActions, CommandQueue.Callbacks 
         } else if (reason != null && reason.equals(PowerManager.REBOOT_RECOVERY)) {
             return com.android.internal.R.string.reboot_to_recovery_message;
         } else if (reason != null && reason.equals(PowerManager.REBOOT_BOOTLOADER)) {
-            return com.android.systemui.R.string.global_action_restart_bootloader_progress;
-        } else if (reason != null && reason.equals(PowerManager.REBOOT_DOWNLOAD)) {
-            return com.android.systemui.R.string.global_action_restart_download_progress;
+            return R.string.reboot_to_bootloader_message;
         } else if (reason != null && reason.equals(PowerManager.REBOOT_FASTBOOT)) {
-            return com.android.systemui.R.string.global_action_restart_fastboot_progress;
+            if (SystemProperties.getBoolean("ro.fastbootd.available", false)) {
+                return R.string.reboot_to_fastboot_message;
+            } else {
+                return R.string.reboot_to_fastbootd_message;
+            }
         } else if (isReboot) {
             return com.android.systemui.R.string.global_action_restart_progress;
         } else {
