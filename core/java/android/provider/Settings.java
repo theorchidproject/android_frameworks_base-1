@@ -5363,6 +5363,14 @@ public final class Settings {
          */
         public static final String ON_THE_GO_CAMERA = "on_the_go_camera";
 
+
+        /**
+         * Scarlet Idle Assistant Manager
+         * @hide
+         */
+        @Readable
+        public static final String SCARLET_IDLE_ASSISTANT_MANAGER = "scarlet_idle_assistant_manager";
+
         /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
@@ -5611,7 +5619,6 @@ public final class Settings {
          * @deprecated Use {@link android.provider.Settings.Global#DATA_ROAMING} instead
          */
         @Deprecated
-        public static final String DATA_ROAMING = Global.DATA_ROAMING;
 
         /**
          * @deprecated Use {@link android.provider.Settings.Global#DEVICE_PROVISIONED} instead
