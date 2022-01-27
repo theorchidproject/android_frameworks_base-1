@@ -63,7 +63,9 @@ public class PixelPropsUtils {
             "com.breel.wallpapers20"
     };
 
-    private static ArrayList<String> allProps = new ArrayList<>(Arrays.asList("BRAND", "MANUFACTURER", "DEVICE", "PRODUCT", "MODEL", "FINGERPRINT"));
+    private static final String[] packagesToKeep = {
+        "com.google.ar.core"
+    };
 
     private static volatile boolean sIsGms = false;
 
