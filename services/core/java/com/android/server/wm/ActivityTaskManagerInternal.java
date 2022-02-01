@@ -686,4 +686,14 @@ public abstract class ActivityTaskManagerInternal {
     public abstract void registerActivityStartInterceptor(
             @ActivityInterceptorCallback.OrderedId int id,
             ActivityInterceptorCallback callback);
+
+    /**
+     * Attempts to restart the process associated with the top most Activity associated with the
+     * given {@code packageName} in the task associated with the given {@code taskId}.
+     *
+     * This will request the process of the activity to restart with its saved state (via
+     * {@link android.app.Activity#onSaveInstanceState(Bundle)}) if possible. If the activity is in
+     * background the process will be killed keeping its record.
+     */
+    public abstract boolean isVisibleActivity(IBinder activityToken);
 }

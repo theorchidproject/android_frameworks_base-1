@@ -74,7 +74,7 @@ import com.android.internal.content.PackageMonitor;
 import com.android.internal.util.DumpUtils;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.server.SystemService;
-import com.android.server.SystemService.TargetUser;
+import com.android.server.app.AppLockManagerServiceInternal;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -188,6 +188,8 @@ public class TrustManagerService extends SystemService {
 
     private boolean mTrustAgentsCanRun = false;
     private int mCurrentUser = UserHandle.USER_SYSTEM;
+
+    private AppLockManagerServiceInternal mAppLockManagerService = null;
 
     public TrustManagerService(Context context) {
         super(context);
@@ -688,7 +690,15 @@ public class TrustManagerService extends SystemService {
             boolean deviceLocked = secure && showingKeyguard && !trusted &&
                     !biometricAuthenticated;
             setDeviceLockedForUser(id, deviceLocked);
+            getAppLockManagerService().notifyDeviceLocked(deviceLocked, id);
         }
+    }
+
+    private AppLockManagerServiceInternal getAppLockManagerService() {
+        if (mAppLockManagerService == null) {
+            mAppLockManagerService = LocalServices.getService(AppLockManagerServiceInternal.class);
+        }
+        return mAppLockManagerService;
     }
 
     private void setDeviceLockedForUser(@UserIdInt int userId, boolean locked) {
