@@ -145,8 +145,8 @@ public final class PermissionManager {
 
     private List<SplitPermissionInfo> mSplitPermissionInfos;
 
-    private static String[] sLocationProviderPkgNames;
-    private static String[] sLocationExtraPkgNames;
+    private static String[] mLocationProviderPkgNames;
+    private static String[] mLocationExtraPkgNames;
 
     /**
      * Creates a new instance.
@@ -162,6 +162,11 @@ public final class PermissionManager {
         mPermissionManager = IPermissionManager.Stub.asInterface(ServiceManager.getServiceOrThrow(
                 "permissionmgr"));
         mLegacyPermissionManager = context.getSystemService(LegacyPermissionManager.class);
+
+        mLocationProviderPkgNames = context.getResources().getStringArray(
+                R.array.config_locationProviderPackageNames);
+        mLocationExtraPkgNames = context.getResources().getStringArray(
+                R.array.config_locationExtraPackageNames);
     }
 
     /**
@@ -949,12 +954,12 @@ public final class PermissionManager {
                 pkgNames.add(exemptedPackage);
             }
         }
-        for (String pkgName: sLocationProviderPkgNames) {
+        for (String pkgName: mLocationProviderPkgNames) {
             if (pkgName != null) {
                 pkgNames.add(pkgName);
             }
         }
-        for (String pkgName: sLocationExtraPkgNames) {
+        for (String pkgName: mLocationExtraPkgNames) {
             if (pkgName != null) {
                 pkgNames.add(pkgName);
             }
