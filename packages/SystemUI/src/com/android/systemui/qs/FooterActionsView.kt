@@ -38,9 +38,9 @@ import com.android.systemui.statusbar.phone.SettingsButton
  * edit tiles, power off and conditionally: user switch and tuner
  */
 class FooterActionsView(context: Context?, attrs: AttributeSet?) : LinearLayout(context, attrs) {
-    private lateinit var settingsContainer: View
-    private lateinit var settingsButton: SettingsButton
     private lateinit var multiUserSwitch: MultiUserSwitch
+    private lateinit var servicesContainer: View
+    private lateinit var settingsContainer: View
     private lateinit var multiUserAvatar: ImageView
     private lateinit var tunerIcon: View
     private lateinit var editTilesButton: View
@@ -50,12 +50,16 @@ class FooterActionsView(context: Context?, attrs: AttributeSet?) : LinearLayout(
     private var qsDisabled = false
     private var expansionAmount = 0f
 
+    private var mMultiUserEnabled = true
+    private var mShowServicesIcon = false
+    private var mShowSettingsIcon = true
+    private var mShowUserIcon = true
+
     override fun onFinishInflate() {
         super.onFinishInflate()
-        editTilesButton = requireViewById(android.R.id.edit)
-        settingsButton = findViewById(R.id.settings_button)
-        settingsContainer = findViewById(R.id.settings_button_container)
         multiUserSwitch = findViewById(R.id.multi_user_switch)
+        settingsContainer = findViewById(R.id.settings_button_container)
+        servicesContainer = findViewById(R.id.services_button_container)
         multiUserAvatar = multiUserSwitch.findViewById(R.id.multi_user_avatar)
         tunerIcon = requireViewById(R.id.tuner_icon)
 
@@ -130,8 +134,8 @@ class FooterActionsView(context: Context?, attrs: AttributeSet?) : LinearLayout(
 
     private fun updateClickabilities() {
         multiUserSwitch.isClickable = multiUserSwitch.visibility == VISIBLE
-        editTilesButton.isClickable = editTilesButton.visibility == VISIBLE
-        settingsButton.isClickable = settingsButton.visibility == VISIBLE
+        settingsContainer.isClickable = settingsContainer.visibility == VISIBLE
+        servicesContainer.isClickable = servicesContainer.visibility == VISIBLE
     }
 
     private fun updateVisibilities(
@@ -142,7 +146,8 @@ class FooterActionsView(context: Context?, attrs: AttributeSet?) : LinearLayout(
         tunerIcon.visibility = if (isTunerEnabled) VISIBLE else INVISIBLE
         multiUserSwitch.visibility = if (multiUserEnabled) VISIBLE else GONE
         val isDemo = UserManager.isDeviceInDemoMode(context)
-        settingsButton.visibility = if (isDemo) INVISIBLE else VISIBLE
+        servicesContainer.visibility = if (isDemo || qsDisabled || !mShowServicesIcon) GONE else VISIBLE
+        settingsContainer.visibility = if (isDemo || qsDisabled || !mShowSettingsIcon) GONE else VISIBLE
     }
 
     fun onUserInfoChanged(picture: Drawable?, isGuestUser: Boolean) {
@@ -155,4 +160,39 @@ class FooterActionsView(context: Context?, attrs: AttributeSet?) : LinearLayout(
         }
         multiUserAvatar.setImageDrawable(pictureToSet)
     }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        if (VERBOSE) Log.d(TAG, "FooterActionsView onInterceptTouchEvent ${ev?.string}")
+        return super.onInterceptTouchEvent(ev)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (VERBOSE) Log.d(TAG, "FooterActionsView onTouchEvent ${event?.string}")
+        return super.onTouchEvent(event)
+    }
+
+    public fun updateServicesIconVisibility(
+        visible: Boolean
+    ) {
+        mShowServicesIcon = visible
+        updateEverything(mMultiUserEnabled)
+    }
+
+    public fun updateSettingsIconVisibility(
+        visible: Boolean
+    ) {
+        mShowSettingsIcon = visible
+        updateEverything(mMultiUserEnabled)
+    }
+
+    public fun updateUserIconVisibility(
+        visible: Boolean
+    ) {
+        mShowUserIcon = visible
+        updateEverything(mMultiUserEnabled)
+    }
 }
+private const val TAG = "FooterActionsView"
+private val VERBOSE = Log.isLoggable(TAG, Log.VERBOSE)
+private val MotionEvent.string
+    get() = "($id): ($x,$y)"
