@@ -5426,6 +5426,12 @@ public final class Settings {
          */
         public static final String DOZE_TRIGGER_DOUBLETAP = "doze_trigger_doubletap";
 
+        /**
+         * Show Running Services icon in QS Footer.
+         * @hide
+         */
+        public static final String QS_FOOTER_SHOW_SERVICES = "qs_footer_show_services";
+
 
         /**
          * These are all public system settings
@@ -5436,7 +5442,6 @@ public final class Settings {
         public static final Set<String> PUBLIC_SETTINGS = new ArraySet<>();
         static {
             PUBLIC_SETTINGS.add(END_BUTTON_BEHAVIOR);
-            PUBLIC_SETTINGS.add(WIFI_USE_STATIC_IP);
             PUBLIC_SETTINGS.add(WIFI_STATIC_IP);
             PUBLIC_SETTINGS.add(WIFI_STATIC_GATEWAY);
             PUBLIC_SETTINGS.add(WIFI_STATIC_NETMASK);
