@@ -58,11 +58,8 @@
          prevent wasting cpu cycles on the dimming animation -->
     <bool name="config_navigation_bar_enable_auto_dim_no_visible_wallpaper">true</bool>
 
-    <!-- The maximum number of tiles in the QuickQSPanel -->
-    <integer name="quick_qs_panel_max_tiles">4</integer>
-
     <!-- The maximum number of rows in the QuickQSPanel -->
-    <integer name="quick_qs_panel_max_rows">2</integer>
+    <integer name="quick_qs_panel_max_rows">1</integer>
 
     <!-- The number of columns in the QuickSettings -->
     <integer name="quick_settings_num_columns">2</integer>
@@ -74,7 +71,7 @@
 
     <!-- The default tiles to display in QuickSettings -->
     <string name="quick_settings_tiles_default" translatable="false">
-       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles
+       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,rotation,mictoggle,cameratoggle,alarm,controls,hotspot,saver,work,night,caffeine,sync,powershare,profiles,vpn
     </string>
 
     <!-- The minimum number of tiles to display in QuickSettings -->
