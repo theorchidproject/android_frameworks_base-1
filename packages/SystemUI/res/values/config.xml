@@ -59,7 +59,7 @@
     <bool name="config_navigation_bar_enable_auto_dim_no_visible_wallpaper">true</bool>
 
     <!-- The maximum number of tiles in the QuickQSPanel -->
-    <integer name="quick_qs_panel_max_tiles">4</integer>
+    <integer name="quick_qs_panel_max_tiles">3</integer>
 
     <!-- The maximum number of rows in the QuickQSPanel -->
     <integer name="quick_qs_panel_max_rows">2</integer>
@@ -276,7 +276,7 @@
     <bool name="enable_volume_ui">true</bool>
 
     <!-- Enable the default volume level warning dialog -->
-    <bool name="enable_safety_warning">true</bool>
+    <bool name="enable_safety_warning">false</bool>
 
     <!-- Whether to show operator name in the status bar -->
     <bool name="config_showOperatorNameInStatusBar">false</bool>
@@ -388,7 +388,7 @@
          This value only affects notifications that are not a group of notifications from the same
          applications. If this value is false, then only the first notification will be expanded;
          the other notifications need to be manually expanded by the user. -->
-    <bool name="config_alwaysExpandNonGroupedNotifications">false</bool>
+    <bool name="config_alwaysExpandNonGroupedNotifications">true</bool>
 
     <!-- Whether or not an expandable notification can be manually expanded or collapsed by the
          user. Grouped notifications are still expandable even if this value is false. -->
@@ -401,7 +401,7 @@
     <!-- Whether or not the dividing lines should be shown when the container is expanding and
          collapsing. If this value is true, then the lines will only show when the container has
          been completely expanded. -->
-    <bool name="config_hideDividersDuringExpand">true</bool>
+    <bool name="config_hideDividersDuringExpand">false</bool>
 
     <!-- Whether or not child notifications that are part of a group will have shadows. -->
     <bool name="config_enableShadowOnChildNotifications">true</bool>
@@ -425,10 +425,13 @@
 
     <!-- Snooze: List of snooze values in integer minutes. -->
     <integer-array name="config_notification_snooze_times">
+        <item>5</item>
         <item>15</item>
-        <item>30</item>
+        <item>20</item>
         <item>60</item>
         <item>120</item>
+        <item>260</item>
+        <item>420</item>
     </integer-array>
 
     <!-- Smart replies in notifications: Whether smart replies in notifications are enabled. -->
@@ -444,7 +447,7 @@
     <!-- Smart replies in notifications: Whether by default tapping on a choice should let the user
          edit the input before it is sent to the app. Developers can override this via
          RemoteInput.Builder.setEditChoicesBeforeSending. -->
-    <bool name="config_smart_replies_in_notifications_edit_choices_before_sending">false</bool>
+    <bool name="config_smart_replies_in_notifications_edit_choices_before_sending">true</bool>
 
     <!-- Smart replies in notifications: Whether smart suggestions in notifications are enabled in
          heads-up notifications.  -->
@@ -457,7 +460,7 @@
 
     <!-- Smart replies in notifications: Maximum number of smart actions to show in notifications.
          -->
-    <integer name="config_smart_replies_in_notifications_max_num_actions">-1</integer>
+    <integer name="config_smart_replies_in_notifications_max_num_actions">2</integer>
 
     <!-- Smart replies in notifications: Delay (ms) before smart suggestions are clickable, since
          they were added. -->
@@ -559,7 +562,7 @@
     <bool name="config_changeVolumeRowTintWhenInactive">true</bool>
 
     <!-- The duraction of the show animation for the volume dialog in milliseconds -->
-    <integer name="config_dialogShowAnimationDurationMs">300</integer>
+    <integer name="config_dialogShowAnimationDurationMs">350</integer>
 
     <!-- The duraction of the hide animation for the volume dialog in milliseconds -->
     <integer name="config_dialogHideAnimationDurationMs">250</integer>

@@ -105,10 +105,10 @@
     <dimen name="notification_min_height">@*android:dimen/notification_min_height</dimen>
 
     <!-- Increased height of a small notification in the status bar -->
-    <dimen name="notification_min_height_increased">146dp</dimen>
+    <dimen name="notification_min_height_increased">166dp</dimen>
 
     <!-- Increased height of a collapsed media notification in the status bar -->
-    <dimen name="notification_min_height_media">160dp</dimen>
+    <dimen name="notification_min_height_media">180dp</dimen>
 
     <!-- Height of a small notification in the status bar which was used before android N -->
     <dimen name="notification_min_height_legacy">64dp</dimen>
@@ -117,10 +117,10 @@
     <dimen name="notification_min_height_before_p">92dp</dimen>
 
     <!-- Height of a small notification in the status bar which was used before android S -->
-    <dimen name="notification_min_height_before_s">106dp</dimen>
+    <dimen name="notification_min_height_before_s">126dp</dimen>
 
     <!-- Height of a large notification in the status bar -->
-    <dimen name="notification_max_height">358dp</dimen>
+    <dimen name="notification_max_height">378dp</dimen>
 
     <!-- Height of a heads up notification in the status bar for legacy custom views -->
     <dimen name="notification_max_heads_up_height_legacy">128dp</dimen>
@@ -132,10 +132,10 @@
     <dimen name="notification_max_heads_up_height_before_s">162dp</dimen>
 
     <!-- Height of a heads up notification in the status bar -->
-    <dimen name="notification_max_heads_up_height">136dp</dimen>
+    <dimen name="notification_max_heads_up_height">139dp</dimen>
 
     <!-- Height of a heads up notification in the status bar -->
-    <dimen name="notification_max_heads_up_height_increased">188dp</dimen>
+    <dimen name="notification_max_heads_up_height_increased">198dp</dimen>
 
     <!-- Side padding on the lockscreen on the side of notifications -->
     <dimen name="notification_side_paddings">16dp</dimen>
@@ -326,10 +326,10 @@
 
     <!-- The height of the quick settings footer that holds the user switcher, settings icon,
          etc. -->
-    <dimen name="qs_footer_height">96dp</dimen>
+    <dimen name="qs_footer_height">76dp</dimen>
 
     <!-- The size of each of the icon buttons in the QS footer -->
-    <dimen name="qs_footer_action_button_size">48dp</dimen>
+    <dimen name="qs_footer_action_button_size">40dp</dimen>
 
     <dimen name="qs_footer_action_corner_radius">20dp</dimen>
 
@@ -383,11 +383,11 @@
 
     <dimen name="volume_dialog_stream_padding">12dp</dimen>
 
-    <dimen name="volume_dialog_panel_width">56dp</dimen>
+    <dimen name="volume_dialog_panel_width">50dp</dimen>
 
-    <dimen name="volume_dialog_panel_width_half">28dp</dimen>
+    <dimen name="volume_dialog_panel_width_half">24dp</dimen>
 
-    <dimen name="volume_dialog_slider_width">42dp</dimen>
+    <dimen name="volume_dialog_slider_width">40dp</dimen>
 
     <dimen name="volume_dialog_slider_corner_radius">21dp</dimen>
 
@@ -443,7 +443,7 @@
     <dimen name="pull_span_min">25dp</dimen>
 
     <dimen name="qs_corner_radius">28dp</dimen>
-    <dimen name="qs_tile_height">84dp</dimen>
+    <dimen name="qs_tile_height">80dp</dimen>
     <dimen name="qs_tile_margin_horizontal">8dp</dimen>
     <dimen name="qs_tile_margin_vertical">@dimen/qs_tile_margin_horizontal</dimen>
     <dimen name="qs_tile_margin_top_bottom">4dp</dimen>
