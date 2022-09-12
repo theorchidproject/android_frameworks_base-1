@@ -68,13 +68,13 @@
     <integer name="quick_settings_num_columns">2</integer>
 
     <!-- The number of rows in the QuickSettings -->
-    <integer name="quick_settings_max_rows">4</integer>
+    <integer name="quick_settings_max_rows">3</integer>
 
     <!-- The number of columns that the top level tiles span in the QuickSettings -->
 
     <!-- The default tiles to display in QuickSettings -->
     <string name="quick_settings_tiles_default" translatable="false">
-        internet,bt,flashlight,dnd,alarm,airplane,controls,wallet,rotation,battery,cast,screenrecord,mictoggle,cameratoggle
+        internet,bt,location,flashlight,battery,dnd,airplane,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls
     </string>
 
     <!-- The minimum number of tiles to display in QuickSettings -->
@@ -82,7 +82,7 @@
 
     <!-- Tiles native to System UI. Order should match "quick_settings_tiles_default" -->
     <string name="quick_settings_tiles_stock" translatable="false">
-        internet,wifi,cell,bt,flashlight,dnd,alarm,airplane,nfc,controls,wallet,rotation,battery,cast,screenrecord,mictoggle,cameratoggle,location,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,ambient_display,aod,caffeine,heads_up,reading_mode,sync,powershare,profiles,usb_tether,vpn
+        internet,wifi,cell,bt,location,flashlight,battery,dnd,airplane,nfc,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,ambient_display,aod,caffeine,heads_up,reading_mode,sync,powershare,profiles,usb_tether,vpn
     </string>
 
     <!-- The tiles to display in QuickSettings -->
@@ -104,14 +104,14 @@
     <bool name="config_showWifiIndicatorWhenEnabled">false</bool>
 
     <!-- The number of milliseconds before the heads up notification auto-dismisses. -->
-    <integer name="heads_up_notification_decay">5000</integer>
+    <integer name="heads_up_notification_decay">7000</integer>
 
     <!-- The number of milliseconds before the heads up notification sent automatically by the system auto-dismisses. -->
-    <integer name="auto_heads_up_notification_decay">3000</integer>
+    <integer name="auto_heads_up_notification_decay">4000</integer>
 
     <!-- The number of milliseconds after a heads up notification is pushed back
      before the app can interrupt again. -->
-    <integer name="heads_up_default_snooze_length_ms">60000</integer>
+    <integer name="heads_up_default_snooze_length_ms">80000</integer>
 
     <!-- Minimum display time for a heads up notification, in milliseconds. -->
     <integer name="heads_up_notification_minimum_time">2000</integer>
@@ -276,7 +276,7 @@
     <bool name="enable_volume_ui">true</bool>
 
     <!-- Enable the default volume level warning dialog -->
-    <bool name="enable_safety_warning">true</bool>
+    <bool name="enable_safety_warning">false</bool>
 
     <!-- Whether to show operator name in the status bar -->
     <bool name="config_showOperatorNameInStatusBar">false</bool>
@@ -369,7 +369,7 @@
     <bool name="config_showNotificationShelf">true</bool>
 
     <!-- Whether or not the notifications should always fade as they are dismissed. -->
-    <bool name="config_fadeNotificationsOnDismiss">false</bool>
+    <bool name="config_fadeNotificationsOnDismiss">true</bool>
 
     <!-- Whether or not the fade on the notification is based on the amount that it has been swiped
          off-screen. -->
@@ -388,7 +388,7 @@
          This value only affects notifications that are not a group of notifications from the same
          applications. If this value is false, then only the first notification will be expanded;
          the other notifications need to be manually expanded by the user. -->
-    <bool name="config_alwaysExpandNonGroupedNotifications">false</bool>
+    <bool name="config_alwaysExpandNonGroupedNotifications">true</bool>
 
     <!-- Whether or not an expandable notification can be manually expanded or collapsed by the
          user. Grouped notifications are still expandable even if this value is false. -->
@@ -401,7 +401,7 @@
     <!-- Whether or not the dividing lines should be shown when the container is expanding and
          collapsing. If this value is true, then the lines will only show when the container has
          been completely expanded. -->
-    <bool name="config_hideDividersDuringExpand">true</bool>
+    <bool name="config_hideDividersDuringExpand">false</bool>
 
     <!-- Whether or not child notifications that are part of a group will have shadows. -->
     <bool name="config_enableShadowOnChildNotifications">true</bool>
@@ -444,7 +444,7 @@
     <!-- Smart replies in notifications: Whether by default tapping on a choice should let the user
          edit the input before it is sent to the app. Developers can override this via
          RemoteInput.Builder.setEditChoicesBeforeSending. -->
-    <bool name="config_smart_replies_in_notifications_edit_choices_before_sending">false</bool>
+    <bool name="config_smart_replies_in_notifications_edit_choices_before_sending">true</bool>
 
     <!-- Smart replies in notifications: Whether smart suggestions in notifications are enabled in
          heads-up notifications.  -->
@@ -453,7 +453,7 @@
     <!-- Smart replies in notifications: Minimum number of system generated smart replies that
          should be shown in a notification. If we cannot show at least this many replies we instead
          show none. -->
-    <integer name="config_smart_replies_in_notifications_min_num_system_generated_replies">0</integer>
+    <integer name="config_smart_replies_in_notifications_min_num_system_generated_replies">2</integer>
 
     <!-- Smart replies in notifications: Maximum number of smart actions to show in notifications.
          -->

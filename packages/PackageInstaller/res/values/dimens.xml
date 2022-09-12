@@ -23,7 +23,7 @@
     <dimen name="header_margin_start">16dp</dimen>
     <dimen name="header_margin_end">16dp</dimen>
 
-    <dimen name="lb_action_section_width">384dp</dimen>
+    <dimen name="lb_action_section_width">374dp</dimen>
 
     <dimen name="lb_content_section_width">576dp</dimen>
     <dimen name="lb_content_fragment_start_padding">48dp</dimen>

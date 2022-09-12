@@ -16,7 +16,7 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- [CHAR LIMIT=25] -->
-    <string name="app_name">Package installer</string>
+    <string name="app_name">Application Infusion</string>
 
     <!-- [CHAR LIMIT=15] -->
     <string name="install">Install</string>
@@ -31,23 +31,23 @@
     <!-- [CHAR LIMIT=50] -->
     <string name="installing_app">Installing <xliff:g id="package_label">%1$s</xliff:g>\u2026</string>
     <!-- [CHAR LIMIT=100] -->
-    <string name="install_done">App installed.</string>
+    <string name="install_done">App infused.</string>
     <!-- Message for installing a new app that requires some permissions [CHAR LIMIT=NONE] -->
     <!-- Message for installing a new app that does not require permissions [CHAR LIMIT=NONE] -->
     <string name="install_confirm_question">Do you want to install this app?</string>
     <!-- Message for updating an existing app [CHAR LIMIT=NONE] -->
     <string name="install_confirm_question_update">Do you want to update this app?</string>
     <!-- [CHAR LIMIT=100] -->
-    <string name="install_failed">App not installed.</string>
+    <string name="install_failed">infusion not complete.</string>
     <!-- Reason displayed when installation fails because the package was blocked
         from being installed (e.g., device policy, verification, ...) [CHAR LIMIT=100] -->
     <string name="install_failed_blocked">The package was blocked from being installed.</string>
     <!-- Reason displayed when installation fails because the package conflicts with
         an existing application (e.g., incompatible certificates) [CHAR LIMIT=100] -->
-    <string name="install_failed_conflict">App not installed as package conflicts with an existing package.</string>
+    <string name="install_failed_conflict">App not infused as package conflicts with an existing package.</string>
     <!-- Reason displayed when installation fails because the package is incompatible with
        the current tablet (e.g., missing native code for the current ABI, newer SDK, ...) [CHAR LIMIT=100] -->
-    <string name="install_failed_incompatible" product="tablet">App not installed as app isn\'t
+    <string name="install_failed_incompatible" product="tablet">App not infused as app isn\'t
         compatible with your tablet.</string>
     <!-- Reason displayed when installation fails because the package is incompatible with
        the current TV (e.g., missing native code for the current ABI, newer SDK, ...) [CHAR LIMIT=100] -->
@@ -55,11 +55,11 @@
         compatible with your TV.</string>
     <!-- Reason displayed when installation fails because the package is incompatible with
        the current phone (e.g., missing native code for the current ABI, newer SDK, ...) [CHAR LIMIT=100] -->
-    <string name="install_failed_incompatible" product="default">App not installed as app isn\'t
+    <string name="install_failed_incompatible" product="default">App not infused as app isn\'t
         compatible with your phone.</string>
     <!-- Reason displayed when installation fails because the installation package itself is invalid
         in some way (e.g., corrupt) [CHAR LIMIT=100] -->
-    <string name="install_failed_invalid_apk">App not installed as package appears to be invalid.</string>
+    <string name="install_failed_invalid_apk">App not infused as package appears to be invalid.</string>
     <!-- Message presented when an application could not be installed on the tablet for some reason. [CHAR LIMIT=100] -->
     <string name="install_failed_msg" product="tablet"><xliff:g id="app_name">%1$s</xliff:g> couldn\'t be installed on your tablet.</string>
     <!-- Message presented when an application could not be installed on the TV for some reason. [CHAR LIMIT=100] -->
@@ -99,7 +99,7 @@
     <!--  [CHAR LIMIT=none] -->
     <string name="generic_error_dlg_text">App could not be uninstalled.</string>
     <!--  [CHAR LIMIT=30] -->
-    <string name="uninstall_application_title">Uninstall app</string>
+    <string name="uninstall_application_title">Remove app from system</string>
     <!--  [CHAR LIMIT=30] -->
     <string name="uninstall_update_title">Uninstall update</string>
     <!--  [CHAR LIMIT=none] -->
@@ -192,24 +192,21 @@
 
     <!-- Text to show in warning dialog on the phone when the app source cannot be identified [CHAR LIMIT=NONE] -->
     <string name="anonymous_source_warning" product="default">
-        Your phone and personal data are more vulnerable
-        to attack by unknown apps. By installing this app, you
+        By installing this app, you
         agree that you are responsible for any damage to your
         phone or loss of data that may result from its use.
     </string>
 
     <!-- Text to show in warning dialog on the tablet when the app source cannot be identified [CHAR LIMIT=NONE] -->
     <string name="anonymous_source_warning" product="tablet">
-        Your tablet and personal data are more vulnerable
-        to attack by unknown apps. By installing this app, you
+        By installing this app, you
         agree that you are responsible for any damage to your
         tablet or loss of data that may result from its use.
     </string>
 
     <!-- Text to show in warning dialog on the tv when the app source cannot be identified [CHAR LIMIT=NONE] -->
     <string name="anonymous_source_warning" product="tv">
-        Your TV and personal data are more vulnerable
-        to attack by unknown apps. By installing this app, you
+        By installing this app, you
         agree that you are responsible for any damage to your
         TV or loss of data that may result from its use.
     </string>
@@ -228,9 +225,9 @@
 
     <!-- Notification message shown in status bar when an application is successfully installed.
          [CHAR LIMIT=30] -->
-    <string name="notification_installation_success_message">Successfully installed</string>
+    <string name="notification_installation_success_message">Successfully infused</string>
 
     <!-- Notification shown in status bar when an application is successfully installed.
          [CHAR LIMIT=50] -->
-    <string name="notification_installation_success_status">Successfully installed \u201c<xliff:g id="appname" example="Package Installer">%1$s</xliff:g>\u201d</string>
+    <string name="notification_installation_success_status">Successfully infused \u201c<xliff:g id="appname" example="Package Installer">%1$s</xliff:g>\u201d</string>
 </resources>
