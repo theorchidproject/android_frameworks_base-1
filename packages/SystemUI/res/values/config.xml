@@ -74,7 +74,7 @@
 
     <!-- The default tiles to display in QuickSettings -->
     <string name="quick_settings_tiles_default" translatable="false">
-        internet,bt,location,flashlight,battery,dnd,airplane,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls
+       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,nfc,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,ambient_display,aod,caffeine,heads_up,reading_mode,sync,powershare,profiles,usb_tether,vpn
     </string>
 
     <!-- The minimum number of tiles to display in QuickSettings -->
@@ -82,7 +82,7 @@
 
     <!-- Tiles native to System UI. Order should match "quick_settings_tiles_default" -->
     <string name="quick_settings_tiles_stock" translatable="false">
-        internet,wifi,cell,bt,location,flashlight,battery,dnd,airplane,nfc,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,ambient_display,aod,caffeine,heads_up,reading_mode,sync,powershare,profiles,usb_tether,vpn
+       cell,bt,internet,wifi,location,flashlight,battery,dnd,airplane,nfc,rotation,cast,screenrecord,wallet,mictoggle,cameratoggle,alarm,controls,hotspot,inversion,saver,dark,work,night,reverse,reduce_brightness,ambient_display,aod,caffeine,heads_up,reading_mode,sync,powershare,profiles,usb_tether,vpn
     </string>
 
     <!-- The tiles to display in QuickSettings -->
@@ -359,7 +359,7 @@
     <bool name="config_enableNotificationShadeDrag">true</bool>
 
     <!-- Whether to show activity indicators in the status bar -->
-    <bool name="config_showActivity">false</bool>
+    <bool name="config_showActivity">true</bool>
 
     <!-- Whether or not the button to clear all notifications will be shown. -->
     <bool name="config_enableNotificationsClearAll">true</bool>
@@ -425,9 +425,9 @@
 
     <!-- Snooze: List of snooze values in integer minutes. -->
     <integer-array name="config_notification_snooze_times">
-        <item>15</item>
         <item>30</item>
         <item>60</item>
+        <item>80</item>
         <item>120</item>
     </integer-array>
 
