@@ -72,8 +72,6 @@ public class PixelPropsUtils {
     static {
         propsToKeep = new HashMap<>();
         propsToKeep.put("com.google.android.settings.intelligence", new ArrayList<>(Collections.singletonList("FINGERPRINT")));
-        propsToKeep.put("com.google.android.GoogleCamera", allProps);
-        propsToKeep.put("com.google.android.dialer", allProps);
         propsToChangePixel6 = new HashMap<>();
         propsToChangePixel6.put("BRAND", "google");
         propsToChangePixel6.put("MANUFACTURER", "Google");
@@ -125,10 +123,7 @@ public class PixelPropsUtils {
             }
             if (packageName.equals(PACKAGE_GMS)) {
                 sIsGms = true;
-            }
-            // Set proper indexing fingerprint
-            if (packageName.equals("com.google.android.settings.intelligence")) {
-                setPropValue("FINGERPRINT", Build.DATE);
+  
             }
         }
     }
