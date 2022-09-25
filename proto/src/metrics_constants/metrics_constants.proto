@@ -7441,5 +7441,8 @@ message MetricsEvent {
 
     // project orchid Metrics
     OrchidOs = 2772;
+    
+    // CustomSettings constant
+    EXTENDED = 2542;
   }
 }
