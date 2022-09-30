@@ -7438,8 +7438,17 @@ message MetricsEvent {
 
     // CustomSettings constant
     CUSTOM_SETTINGS = 1999;
-
+    
+    // EXTRASettings constant
+    EXTRA_SETTINGS = 10000;
+    
+    // CRDROIDSettings constant
+    CRDROID_SETTINGS = 3222;
+    
     // project orchid Metrics
-    OrchidOs = 2772;
+    OrchidOs = 2772;    
+    
+    // EXTENDEDSettings constant
+    EXTENDED = 2542;
   }
 }
