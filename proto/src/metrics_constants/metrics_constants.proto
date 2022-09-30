@@ -7445,6 +7445,9 @@ message MetricsEvent {
     // CRDROIDSettings constant
     CRDROID_SETTINGS = 3222;
     
+    // Sakura Settings
+    SAKURA_SETTINGS = 4000;
+    
     // project orchid Metrics
     OrchidOs = 2772;    
     
