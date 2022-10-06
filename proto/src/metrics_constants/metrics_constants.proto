@@ -7450,10 +7450,7 @@ message MetricsEvent {
     
     // project orchid Metrics
     OrchidOs = 2772;    
-
-    // ANCIENT SETTINGS
-    ANCIENT_SETTINGS = 5000;
-
+    
     // EXTENDEDSettings constant
     EXTENDED = 2542;
   }

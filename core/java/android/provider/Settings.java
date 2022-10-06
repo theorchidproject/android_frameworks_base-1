@@ -4351,12 +4351,7 @@ public final class Settings {
         public static final String SCREEN_BRIGHTNESS_FLOAT = "screen_brightness_float";
 
         /**
-         * Weather to enable statusbar dual row
-         */
-        public static final String STATUSBAR_DUAL_ROW = "statusbar_dual_row";
-
-        /**
-         * Shows system info in QS OFF:0, CPU temp:1, battery temp:2, cpu speed: 3 , gpu clock: 4, gpu busy: 5
+         * Control whether to enable automatic brightness mode.
          */
         @Readable
         public static final String SCREEN_BRIGHTNESS_MODE = "screen_brightness_mode";
