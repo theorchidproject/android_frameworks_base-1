@@ -5187,13 +5187,6 @@ public final class Settings {
         public static final String LOCK_TO_APP_ENABLED = "lock_to_app_enabled";
 
         /**
-         * Whether to remove navigation bar height while keeping the gesture pill.
-         * Default 0.
-         * @hide
-         */
-        public static final String IMMERSIVE_GESTURES = "immersive_gestures";
-        
-        /**
          * I am the lolrus.
          * <p>
          * Nonzero values indicate that the user has a bukkit.
