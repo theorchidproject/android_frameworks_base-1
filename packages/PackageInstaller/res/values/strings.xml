@@ -16,7 +16,7 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- [CHAR LIMIT=25] -->
-    <string name="app_name">Application Infusion</string>
+    <string name="app_name">App Installer</string>
 
     <!-- [CHAR LIMIT=15] -->
     <string name="install">Install</string>
@@ -31,23 +31,23 @@
     <!-- [CHAR LIMIT=50] -->
     <string name="installing_app">Installing <xliff:g id="package_label">%1$s</xliff:g>\u2026</string>
     <!-- [CHAR LIMIT=100] -->
-    <string name="install_done">App infused.</string>
+    <string name="install_done">Fully Installed</string>
     <!-- Message for installing a new app that requires some permissions [CHAR LIMIT=NONE] -->
     <!-- Message for installing a new app that does not require permissions [CHAR LIMIT=NONE] -->
     <string name="install_confirm_question">Do you want to install this app?</string>
     <!-- Message for updating an existing app [CHAR LIMIT=NONE] -->
     <string name="install_confirm_question_update">Do you want to update this app?</string>
     <!-- [CHAR LIMIT=100] -->
-    <string name="install_failed">infusion not complete.</string>
+    <string name="install_failed">sadly not complete.</string>
     <!-- Reason displayed when installation fails because the package was blocked
         from being installed (e.g., device policy, verification, ...) [CHAR LIMIT=100] -->
     <string name="install_failed_blocked">The package was blocked from being installed.</string>
     <!-- Reason displayed when installation fails because the package conflicts with
         an existing application (e.g., incompatible certificates) [CHAR LIMIT=100] -->
-    <string name="install_failed_conflict">App not infused as package conflicts with an existing package.</string>
+    <string name="install_failed_conflict">This package conflicts with an existing package.</string>
     <!-- Reason displayed when installation fails because the package is incompatible with
        the current tablet (e.g., missing native code for the current ABI, newer SDK, ...) [CHAR LIMIT=100] -->
-    <string name="install_failed_incompatible" product="tablet">App not infused as app isn\'t
+    <string name="install_failed_incompatible" product="tablet">App not Installed as app isn\'t
         compatible with your tablet.</string>
     <!-- Reason displayed when installation fails because the package is incompatible with
        the current TV (e.g., missing native code for the current ABI, newer SDK, ...) [CHAR LIMIT=100] -->
@@ -55,11 +55,11 @@
         compatible with your TV.</string>
     <!-- Reason displayed when installation fails because the package is incompatible with
        the current phone (e.g., missing native code for the current ABI, newer SDK, ...) [CHAR LIMIT=100] -->
-    <string name="install_failed_incompatible" product="default">App not infused as app isn\'t
+    <string name="install_failed_incompatible" product="default">App not Installed as app isn\'t
         compatible with your phone.</string>
     <!-- Reason displayed when installation fails because the installation package itself is invalid
         in some way (e.g., corrupt) [CHAR LIMIT=100] -->
-    <string name="install_failed_invalid_apk">App not infused as package appears to be invalid.</string>
+    <string name="install_failed_invalid_apk">This package appears to be invalid.</string>
     <!-- Message presented when an application could not be installed on the tablet for some reason. [CHAR LIMIT=100] -->
     <string name="install_failed_msg" product="tablet"><xliff:g id="app_name">%1$s</xliff:g> couldn\'t be installed on your tablet.</string>
     <!-- Message presented when an application could not be installed on the TV for some reason. [CHAR LIMIT=100] -->
@@ -225,9 +225,9 @@
 
     <!-- Notification message shown in status bar when an application is successfully installed.
          [CHAR LIMIT=30] -->
-    <string name="notification_installation_success_message">Successfully infused</string>
+    <string name="notification_installation_success_message">Successfull</string>
 
     <!-- Notification shown in status bar when an application is successfully installed.
          [CHAR LIMIT=50] -->
-    <string name="notification_installation_success_status">Successfully infused \u201c<xliff:g id="appname" example="Package Installer">%1$s</xliff:g>\u201d</string>
+    <string name="notification_installation_success_status">Successfull \u201c<xliff:g id="appname" example="Package Installer">%1$s</xliff:g>\u201d</string>
 </resources>
