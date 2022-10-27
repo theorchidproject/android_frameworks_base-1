@@ -5256,24 +5256,6 @@ public final class Settings {
          * @hide
          */
         public static final String THREE_FINGER_GESTURE = "three_finger_gesture";
-	
-		/**
-         * reTicker Status
-         * @hide
-         */
-        public static final String RETICKER_STATUS = "reticker_status";
-
-        /**
-         * reTicker Colored
-         * @hide
-         */
-        public static final String RETICKER_COLORED = "reticker_colored";
-
-        /**
-         * Screenshot image compression
-         * @hide
-         */
-        public static final String SCREENSHOT_COMPRESSION = "screenshot_compression";
 
         /**
          * These are all public system settings
