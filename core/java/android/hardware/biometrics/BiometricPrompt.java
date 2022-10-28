@@ -62,74 +62,6 @@ public class BiometricPrompt implements BiometricAuthenticator, BiometricConstan
     private static final String TAG = "BiometricPrompt";
 
     /**
-     * @hide
-     */
-    public static final String KEY_TITLE = "title";
-    /**
-     * @hide
-     */
-    @RequiresPermission(USE_BIOMETRIC_INTERNAL)
-    public static final String KEY_USE_DEFAULT_TITLE = "use_default_title";
-    /**
-     * @hide
-     */
-    public static final String KEY_APPLOCK_PKG = "applock_package_name";
-    /**
-     * @hide
-     */
-    public static final String KEY_SUBTITLE = "subtitle";
-    /**
-     * @hide
-     */
-    public static final String KEY_DESCRIPTION = "description";
-    /**
-     * @hide
-     */
-    @RequiresPermission(USE_BIOMETRIC_INTERNAL)
-    public static final String KEY_DEVICE_CREDENTIAL_TITLE = "device_credential_title";
-    /**
-     * @hide
-     */
-    @RequiresPermission(USE_BIOMETRIC_INTERNAL)
-    public static final String KEY_DEVICE_CREDENTIAL_SUBTITLE = "device_credential_subtitle";
-    /**
-     * @hide
-     */
-    @RequiresPermission(USE_BIOMETRIC_INTERNAL)
-    public static final String KEY_DEVICE_CREDENTIAL_DESCRIPTION = "device_credential_description";
-    /**
-     * @hide
-     */
-    public static final String KEY_NEGATIVE_TEXT = "negative_text";
-    /**
-     * @hide
-     */
-    public static final String KEY_REQUIRE_CONFIRMATION = "require_confirmation";
-    /**
-     * This is deprecated. Internally we should use {@link #KEY_AUTHENTICATORS_ALLOWED}
-     * @hide
-     */
-    public static final String KEY_ALLOW_DEVICE_CREDENTIAL = "allow_device_credential";
-    /**
-     * If this key is set, we will ignore {@link #KEY_ALLOW_DEVICE_CREDENTIAL}
-     * @hide
-     */
-    public static final String KEY_AUTHENTICATORS_ALLOWED = "authenticators_allowed";
-    /**
-     * If this is set, check the Device Policy Manager for allowed biometrics.
-     * @hide
-     */
-    @RequiresPermission(USE_BIOMETRIC_INTERNAL)
-    public static final String EXTRA_DISALLOW_BIOMETRICS_IF_POLICY_EXISTS = "check_dpm";
-    /**
-     * Request to receive system events, such as back gesture/button. See
-     * {@link AuthenticationCallback#onSystemEvent(int)}
-     * @hide
-     */
-    @RequiresPermission(USE_BIOMETRIC_INTERNAL)
-    public static final String KEY_RECEIVE_SYSTEM_EVENTS = "receive_system_events";
-
-    /**
      * Error/help message will show for this amount of time.
      * For error messages, the dialog will also be dismissed after this amount of time.
      * Error messages will be propagated back to the application via AuthenticationCallback
@@ -240,18 +172,6 @@ public class BiometricPrompt implements BiometricAuthenticator, BiometricConstan
         @NonNull
         public Builder setUseDefaultTitle() {
             mPromptInfo.setUseDefaultTitle(true);
-            return this;
-        }
-
-        /**
-         * Optional: Show a special dialog for app locker if KEY_APPLOCK_PKG is set
-         * @param packageName
-         * @return
-         * @hide
-         */
-        @NonNull
-        public Builder setApplockPackage(@NonNull CharSequence packageName) {
-            mBundle.putCharSequence(KEY_APPLOCK_PKG, packageName);
             return this;
         }
 

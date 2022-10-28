@@ -338,8 +338,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
     Context mContext;
 
-    AppLockService mAppLockService;
-
     /**
      * This Context is themable and meant for UI display (AlertDialogs, etc.). The theme can
      * change at runtime. Use mContext for non-UI purposes.
@@ -861,8 +859,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             mTaskSupervisor.onSystemReady();
             mActivityClientController.onSystemReady();
         }
-
-        mAppLockService = LocalServices.getService(AppLockService.class);
     }
 
     public void onInitPowerManagement() {
@@ -1768,16 +1764,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     public final int startActivityFromRecents(int taskId, Bundle bOptions) {
         mAmInternal.enforceCallingPermission(START_TASKS_FROM_RECENTS,
                 "startActivityFromRecents()");
-        final Task task = mRootWindowContainer.anyTaskForId(taskId);
-        final ActivityRecord r = task.getRootActivity();
-        if (r != null) {
-            if (isAppLocked(r.packageName) && !isAppOpened(r.packageName)) {
-                mAppLockService.setAppIntent(r.packageName, r.intent);
-                mAppLockService.setStartingFromRecents();
-                mAppLockService.launchBeforeActivity(r.packageName);
-                return ActivityManager.START_SWITCHES_CANCELED;
-            }
-        }
+
         final int callingPid = Binder.getCallingPid();
         final int callingUid = Binder.getCallingUid();
         final SafeActivityOptions safeOptions = SafeActivityOptions.fromBundle(bOptions);
@@ -1941,19 +1928,15 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     }
 
     @Override
-    public final void activityResumed(IBinder token) {
-        final long origId = Binder.clearCallingIdentity();
-        final ActivityRecord r = ActivityRecord.isInStackLocked(token);
-        if (r != null) {
-            if (mAppLockService != null) {
-                mAppLockService.setForegroundApp(r.packageName);
+    public void setFocusedTask(int taskId) {
+        enforceTaskPermission("setFocusedTask()");
+        final long callingId = Binder.clearCallingIdentity();
+        try {
+            synchronized (mGlobalLock) {
+                setFocusedTask(taskId, null /* touchedActivity */);
             }
-            if (isAppLocked(r.packageName)) {
-                mAppLockService.setAppIntent(r.packageName, r.intent);
-            }
-        }
-        synchronized (mGlobalLock) {
-            ActivityRecord.activityResumedLocked(token);
+        } finally {
+            Binder.restoreCallingIdentity(callingId);
         }
     }
 
@@ -1969,17 +1952,16 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             return;
         }
 
-    @Override
-    public final void activityPaused(IBinder token) {
-        final long origId = Binder.clearCallingIdentity();
-        synchronized (mGlobalLock) {
-            Trace.traceBegin(TRACE_TAG_WINDOW_MANAGER, "activityPaused");
-            final ActivityRecord r = ActivityRecord.forTokenLocked(token);
-            if (r != null) {
-                r.activityPaused(false);
-                if (isAppLocked(r.packageName)) {
-                    mAppLockService.activityStopped(r.packageName, r.intent);
-                }
+        if (r.moveFocusableActivityToTop("setFocusedTask")) {
+            mRootWindowContainer.resumeFocusedTasksTopActivities();
+        } else if (touchedActivity != null && touchedActivity.isFocusable()) {
+            final TaskFragment parent = touchedActivity.getTaskFragment();
+            if (parent != null && parent.isEmbedded()) {
+                // Set the focused app directly if the focused window is currently embedded
+                final DisplayContent displayContent = touchedActivity.getDisplayContent();
+                displayContent.setFocusedApp(touchedActivity);
+                mWindowManager.updateFocusedWindowLocked(UPDATE_FOCUS_NORMAL,
+                        true /* updateInputWindows */);
             }
         }
     }
@@ -2824,9 +2806,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             throw new SecurityException("Requires permission "
                     + android.Manifest.permission.DEVICE_POWER);
         }
-        if (mAppLockService != null) {
-            mAppLockService.setKeyguardShown(keyguardShowing);
-        }
 
         synchronized (mGlobalLock) {
             final long ident = Binder.clearCallingIdentity();
@@ -3519,21 +3498,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     @Override
     public IWindowOrganizerController getWindowOrganizerController() {
         return mWindowOrganizerController;
-    }
-
-    boolean isAppLocked(String packageName) {
-        if (mAppLockService == null || packageName == null) return false;
-        return mAppLockService.isAppLocked(packageName);
-    }
-
-    boolean isAppOpened(String packageName) {
-        if (mAppLockService == null || packageName == null) return true;
-        return mAppLockService.isAppOpen(packageName);
-    }
-
-    boolean isAlarmOrCallIntent(Intent intent) {
-        if (mAppLockService == null) return false;
-        return mAppLockService.isAlarmOrCallIntent(intent);
     }
 
     /**

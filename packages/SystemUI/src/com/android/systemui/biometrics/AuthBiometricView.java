@@ -17,7 +17,6 @@
 package com.android.systemui.biometrics;
 
 import static android.hardware.biometrics.BiometricAuthenticator.TYPE_NONE;
-import static android.view.Gravity.CENTER;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -26,12 +25,8 @@ import android.animation.ValueAnimator;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.StringRes;
 import android.content.Context;
 import android.hardware.biometrics.BiometricAuthenticator.Modality;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.hardware.biometrics.BiometricPrompt;
 import android.hardware.biometrics.PromptInfo;
 import android.os.Bundle;
@@ -198,8 +193,9 @@ public abstract class AuthBiometricView extends LinearLayout {
     private TextView mDescriptionView;
     private View mIconHolderView;
     protected ImageView mIconView;
-    protected ImageView mAppIcon;
-    @VisibleForTesting protected TextView mIndicatorView;
+    protected TextView mIndicatorView;
+
+    // Negative button position, exclusively for the app-specified behavior
     @VisibleForTesting Button mNegativeButton;
     // Negative button position, exclusively for cancelling auth after passive auth success
     @VisibleForTesting Button mCancelButton;
@@ -220,8 +216,6 @@ public abstract class AuthBiometricView extends LinearLayout {
 
     protected boolean mDialogSizeAnimating;
     protected Bundle mSavedState;
-
-    protected final PackageManager mPackageManager;
 
     /**
      * Delay after authentication is confirmed, before the dialog should be animated away.
@@ -244,12 +238,6 @@ public abstract class AuthBiometricView extends LinearLayout {
      * @return true if the dialog supports {@link AuthDialog.DialogSize#SIZE_SMALL}
      */
     protected abstract boolean supportsSmallDialog();
-
-    /**
-     * @return string resource which is appended to the negative text
-     */
-    @StringRes
-    protected abstract int getDescriptionTextId();
 
     private final Runnable mResetErrorRunnable;
 
@@ -288,8 +276,6 @@ public abstract class AuthBiometricView extends LinearLayout {
 
         mInjector = injector;
         mInjector.mBiometricView = this;
-
-        mPackageManager = context.getPackageManager();
 
         mAccessibilityManager = context.getSystemService(AccessibilityManager.class);
 
@@ -685,16 +671,6 @@ public abstract class AuthBiometricView extends LinearLayout {
         mConfirmButton = mInjector.getConfirmButton();
         mTryAgainButton = mInjector.getTryAgainButton();
 
-        mAppIcon = new ImageView(mContext);
-        final int iconDim = getResources().getDimensionPixelSize(
-                    R.dimen.applock_icon_dimension);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(iconDim, iconDim);
-        lp.gravity = CENTER;
-        lp.topMargin = -iconDim / 2;
-        mAppIcon.setLayoutParams(lp);
-        mAppIcon.setVisibility(View.GONE);
-        addView(mAppIcon, 0);
-
         mNegativeButton.setOnClickListener((view) -> {
             mCallback.onAction(Callback.ACTION_BUTTON_NEGATIVE);
         });
@@ -739,7 +715,8 @@ public abstract class AuthBiometricView extends LinearLayout {
      */
     @VisibleForTesting
     void onAttachedToWindowInternal() {
-        final String negativeText;
+        mTitleView.setText(mPromptInfo.getTitle());
+
         if (isDeviceCredentialAllowed()) {
             final CharSequence credentialButtonText;
             final @Utils.CredentialType int credentialType =
@@ -773,33 +750,7 @@ public abstract class AuthBiometricView extends LinearLayout {
 
         setTextOrHide(mSubtitleView, mPromptInfo.getSubtitle());
 
-        final CharSequence applockPackage = mBiometricPromptBundle.getCharSequence(BiometricPrompt.KEY_APPLOCK_PKG);
-        if (TextUtils.isEmpty(applockPackage)) {
-            setText(mTitleView, mBiometricPromptBundle.getString(BiometricPrompt.KEY_TITLE));
-            setTextOrHide(mDescriptionView,
-                    mBiometricPromptBundle.getString(BiometricPrompt.KEY_DESCRIPTION));
-        } else {
-            ApplicationInfo aInfo = null;
-            try {
-                aInfo = mPackageManager.getApplicationInfoAsUser(applockPackage.toString(), 0, mUserId);
-            } catch(PackageManager.NameNotFoundException e) {
-                // ignored
-            }
-            Drawable icon = (aInfo == null) ? null : mPackageManager.getApplicationIcon(aInfo);
-            if (icon == null) {
-                mTitleView.setVisibility(View.VISIBLE);
-                setText(mTitleView, getResources().getString(R.string.applock_unlock) + " "
-                        + mBiometricPromptBundle.getString(BiometricPrompt.KEY_TITLE));
-            } else {
-                mTitleView.setVisibility(View.GONE);
-                mAppIcon.setVisibility(View.VISIBLE);
-                mAppIcon.setImageDrawable(icon);
-            }
-            setTextOrHide(mDescriptionView, mBiometricPromptBundle.getString(BiometricPrompt.KEY_DESCRIPTION)
-                    + getResources().getString(R.string.applock_locked) + "\n"
-                    + negativeText + getResources().getString(getDescriptionTextId()));
-            mDescriptionView.setGravity(CENTER);
-        }
+        setTextOrHide(mDescriptionView, mPromptInfo.getDescription());
 
         if (mSavedState == null) {
             updateState(STATE_AUTHENTICATING_ANIMATING_IN);
@@ -851,12 +802,17 @@ public abstract class AuthBiometricView extends LinearLayout {
                         MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(child.getLayoutParams().height,
                                 MeasureSpec.EXACTLY));
-            } else if (child.equals(mAppIcon)) {
+            } else if (child.getId() == R.id.biometric_icon_frame) {
+                final View iconView = findViewById(R.id.biometric_icon);
                 child.measure(
-                        MeasureSpec.makeMeasureSpec(child.getLayoutParams().width,
+                        MeasureSpec.makeMeasureSpec(iconView.getLayoutParams().width,
                                 MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(child.getLayoutParams().height,
+                        MeasureSpec.makeMeasureSpec(iconView.getLayoutParams().height,
                                 MeasureSpec.EXACTLY));
+            } else if (child.getId() == R.id.biometric_icon) {
+                child.measure(
+                        MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
+                        MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
             } else {
                 child.measure(
                         MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
@@ -864,8 +820,7 @@ public abstract class AuthBiometricView extends LinearLayout {
             }
 
             if (child.getVisibility() != View.GONE) {
-                totalHeight += (child.equals(mAppIcon)) ? child.getMeasuredHeight() / 2
-                        : child.getMeasuredHeight();
+                totalHeight += child.getMeasuredHeight();
             }
         }
 

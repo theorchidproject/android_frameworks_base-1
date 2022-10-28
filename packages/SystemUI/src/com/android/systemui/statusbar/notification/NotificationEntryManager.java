@@ -22,8 +22,6 @@ import static com.android.systemui.statusbar.notification.row.NotificationRowCon
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.AppLockManager;
-import android.app.AppLockManager.AppLockCallback;
 import android.app.Notification;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -145,23 +143,38 @@ public class NotificationEntryManager implements
     private final List<NotificationEntryListener> mNotificationEntryListeners = new ArrayList<>();
     private final List<NotificationRemoveInterceptor> mRemoveInterceptors = new ArrayList<>();
 
-    private final AppLockManager mAppLockManager;
-    private final AppLockCallback mAppLockCallback = new AppLockCallback() {
-        @Override
-        public void onAppStateChanged(String pkg) {
-            for (NotificationEntry notif : mAllNotifications) {
-                updateAppLockNotification(pkg, notif);
-            }
-        }
-    };
+    /**
+     * Injected constructor. See {@link NotificationsModule}.
+     */
+    public NotificationEntryManager(
+            NotificationEntryManagerLogger logger,
+            NotificationGroupManagerLegacy groupManager,
+            FeatureFlags featureFlags,
+            Lazy<NotificationRowBinder> notificationRowBinderLazy,
+            Lazy<NotificationRemoteInputManager> notificationRemoteInputManagerLazy,
+            LeakDetector leakDetector,
+            ForegroundServiceDismissalFeatureController fgsFeatureController,
+            IStatusBarService statusBarService,
+            DumpManager dumpManager
+    ) {
+        mLogger = logger;
+        mGroupManager = groupManager;
+        mFeatureFlags = featureFlags;
+        mNotificationRowBinderLazy = notificationRowBinderLazy;
+        mRemoteInputManagerLazy = notificationRemoteInputManagerLazy;
+        mLeakDetector = leakDetector;
+        mFgsFeatureController = fgsFeatureController;
+        mStatusBarService = statusBarService;
+        mDumpManager = dumpManager;
+    }
 
-    private void updateAppLockNotification(String pkg, NotificationEntry notif) {
-        if (pkg.equals(notif.getSbn().getPackageName())) {
-            boolean appLocked = mAppLockManager.isAppLocked(pkg);
-            notif.setAppLocked(appLocked);
-            notif.onAppStateChanged(!mAppLockManager.getAppNotificationHide(pkg)
-                    || mAppLockManager.isAppOpen(pkg));
-        }
+    /** Once called, the NEM will start processing notification events from system server. */
+    public void initialize(
+            NotificationListener notificationListener,
+            LegacyNotificationRanker ranker) {
+        mRanker = ranker;
+        notificationListener.addNotificationHandler(mNotifListener);
+        mDumpManager.registerDumpable(this);
     }
 
     @Override
@@ -203,42 +216,6 @@ public class NotificationEntryManager implements
                         + entry.getValue().getClass().getName());
             }
         }
-    }
-
-    private final Lazy<BubbleController> mBubbleControllerLazy;
-
-    /**
-     * Injected constructor. See {@link NotificationsModule}.
-     */
-    public NotificationEntryManager(
-            AppLockManager appLockManager,
-            NotificationEntryManagerLogger logger,
-            NotificationGroupManager groupManager,
-            NotificationRankingManager rankingManager,
-            KeyguardEnvironment keyguardEnvironment,
-            FeatureFlags featureFlags,
-            Lazy<NotificationRowBinder> notificationRowBinderLazy,
-            Lazy<NotificationRemoteInputManager> notificationRemoteInputManagerLazy,
-            LeakDetector leakDetector,
-            Lazy<BubbleController> bubbleController,
-            ForegroundServiceDismissalFeatureController fgsFeatureController) {
-        mLogger = logger;
-        mGroupManager = groupManager;
-        mRankingManager = rankingManager;
-        mKeyguardEnvironment = keyguardEnvironment;
-        mFeatureFlags = featureFlags;
-        mNotificationRowBinderLazy = notificationRowBinderLazy;
-        mRemoteInputManagerLazy = notificationRemoteInputManagerLazy;
-        mLeakDetector = leakDetector;
-        mFgsFeatureController = fgsFeatureController;
-        mBubbleControllerLazy = bubbleController;
-        mAppLockManager = appLockManager;
-        mAppLockManager.addAppLockCallback(mAppLockCallback);
-    }
-
-    /** Once called, the NEM will start processing notification events from system server. */
-    public void attach(NotificationListener notificationListener) {
-        notificationListener.addNotificationHandler(mNotifListener);
     }
 
     /** Adds a {@link NotificationEntryListener}. */
@@ -654,8 +631,6 @@ public class NotificationEntryManager implements
                 listener.onEntryInit(entry);
             }
         }
-
-        updateAppLockNotification(notification.getPackageName(), entry);
 
         for (NotifCollectionListener listener : mNotifCollectionListeners) {
             listener.onEntryBind(entry, notification);

@@ -130,10 +130,6 @@ public class NotificationInterruptStateProviderImpl implements NotificationInter
 
     @Override
     public boolean shouldBubbleUp(NotificationEntry entry) {
-        if (entry.isAppLocked()) {
-            return false;
-        }
-
         final StatusBarNotification sbn = entry.getSbn();
 
         if (!canAlertCommon(entry)) {
@@ -184,13 +180,13 @@ public class NotificationInterruptStateProviderImpl implements NotificationInter
             return false;
         }
 
-    private boolean shouldHeadsUpWhenAwake(NotificationEntry entry) {
-        if (mStatusBarStateController.getState() != StatusBarState.KEYGUARD
-                && entry.secureContent()) {
+        // Never show FSI when suppressed by DND
+        if (entry.shouldSuppressFullScreenIntent()) {
+            if (DEBUG) {
+                Log.d(TAG, "No FullScreenIntent: Suppressed by DND: " + entry.getKey());
+            }
             return false;
         }
-
-        StatusBarNotification sbn = entry.getSbn();
 
         // Never show FSI if importance is not HIGH
         if (entry.getImportance() < NotificationManager.IMPORTANCE_HIGH) {
