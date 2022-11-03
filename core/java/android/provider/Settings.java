@@ -5461,33 +5461,6 @@ public final class Settings {
 
         // Settings moved to Settings.Secure
 
-
-                /**
-         * If On-The-Go should be displayed at the power menu.
-         * @hide
-         */
-        public static final String GLOBAL_ACTIONS_ONTHEGO = "global_actions_onthego";
-
-        /**
-         * The alpha value of the On-The-Go overlay.
-         * @hide
-         */
-        public static final String ON_THE_GO_ALPHA = "on_the_go_alpha";
-
-        /**
-         * Whether the service should restart itself or not.
-         * @hide
-         */
-        public static final String ON_THE_GO_SERVICE_RESTART = "on_the_go_service_restart";
-
-        /**
-         * The camera instance to use.
-         * 0 = Rear Camera
-         * 1 = Front Camera
-         * @hide
-         */
-        public static final String ON_THE_GO_CAMERA = "on_the_go_camera";
-        
         /**
          * @deprecated Use {@link android.provider.Settings.Global#ADB_ENABLED}
          * instead

@@ -48,8 +48,6 @@ import com.android.systemui.qs.tiles.LocationTile;
 import com.android.systemui.qs.tiles.MicrophoneToggleTile;
 import com.android.systemui.qs.tiles.NfcTile;
 import com.android.systemui.qs.tiles.NightDisplayTile;
-import com.android.systemui.qs.tiles.OnTheGoTile;
-import com.android.systemui.qs.tiles.OneHandedModeTile;
 import com.android.systemui.qs.tiles.PowerShareTile;
 import com.android.systemui.qs.tiles.ProfilesTile;
 import com.android.systemui.qs.tiles.QuickAccessWalletTile;
@@ -113,8 +111,6 @@ public class QSFactoryImpl implements QSFactory {
     private final Provider<ProfilesTile> mProfilesTileProvider;
     private final Provider<UsbTetherTile> mUsbTetherTileProvider;
     private final Provider<VpnTile> mVpnTileProvider;
-    private final Provider<SoundTile> mSoundTileProvider;
-    private final Provider<OnTheGoTile> mOnTheGoTileProvider;
 
     private final Lazy<QSHost> mQsHostLazy;
     private final Provider<CustomTile.Builder> mCustomTileBuilderProvider;
@@ -159,9 +155,7 @@ public class QSFactoryImpl implements QSFactory {
             Provider<ReadingModeTile> readingModeTileProvider,
             Provider<SyncTile> syncTileProvider,
             Provider<UsbTetherTile> usbTetherTileProvider,
-            Provider<VpnTile> vpnTileProvider,
-            Provider<SoundTile> soundTileProvider,
-            Provider<OnTheGoTile> onTheGoTileProvider) {
+            Provider<VpnTile> vpnTileProvider) {
         mQsHostLazy = qsHostLazy;
         mCustomTileBuilderProvider = customTileBuilderProvider;
 
@@ -202,8 +196,6 @@ public class QSFactoryImpl implements QSFactory {
         mProfilesTileProvider = profilesTileProvider;
         mUsbTetherTileProvider = usbTetherTileProvider;
         mVpnTileProvider = vpnTileProvider;
-        mSoundTileProvider = soundTileProvider;
-        mOnTheGoTileProvider = onTheGoTileProvider;
     }
 
     public QSTile createTile(String tileSpec) {
@@ -291,10 +283,6 @@ public class QSFactoryImpl implements QSFactory {
                 return mUsbTetherTileProvider.get();
             case "vpn":
                 return mVpnTileProvider.get();
-            case "sound":
-                return mSoundTileProvider.get();
-            case "onthego":
-                return mOnTheGoTileProvider.get();
         }
 
         // Custom tiles
