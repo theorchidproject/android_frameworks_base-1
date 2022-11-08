@@ -18,7 +18,8 @@
 <resources>
 
 
-
+    <!-- QS tile text visibility -->
+    <dimen name="qs_tile_height_wo_label">64dp</dimen>
     <!-- Additional gesture navbar lengths -->
     <dimen name="navigation_home_handle_width_medium">110dp</dimen>
     <dimen name="navigation_home_handle_width_long">140dp</dimen>
