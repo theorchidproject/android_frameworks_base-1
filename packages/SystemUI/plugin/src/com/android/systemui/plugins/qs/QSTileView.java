@@ -60,5 +60,11 @@ public abstract class QSTileView extends LinearLayout {
 
     public abstract int getDetailY();
 
-    public abstract void textVisibility();
+    public View getLabelContainer() {
+        return null;
+    }
+
+    public View getSecondaryLabel() {
+        return null;
+    }
 }
