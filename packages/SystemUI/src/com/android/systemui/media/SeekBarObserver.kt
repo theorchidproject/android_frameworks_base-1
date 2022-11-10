@@ -54,10 +54,8 @@ class SeekBarObserver(private val holder: PlayerViewHolder) : Observer<SeekBarVi
             return
         }
 
-        holder.seekBar.thumb.alpha = if (data.seekAvailable) 255 else 0
-        holder.seekBar.isEnabled = data.seekAvailable
-        progressDrawable?.animate = data.playing && !data.scrubbing && data.enableSquiggle
-        progressDrawable?.transitionEnabled = !data.seekAvailable
+        holder.seekBar.getThumb().setAlpha(if (data.seekAvailable) 255 else 0)
+        holder.seekBar.setEnabled(data.seekAvailable)
 
         if (holder.seekBar.maxHeight != seekBarEnabledMaxHeight) {
             holder.seekBar.maxHeight = seekBarEnabledMaxHeight
