@@ -554,9 +554,6 @@ public final class PowerManagerService extends SystemService
     // A bitfield of battery conditions under which to make the screen stay on.
     private int mStayOnWhilePluggedInSetting;
 
-    // True if the device should wake up when plugged or unplugged
-    private int mWakeUpWhenPluggedOrUnpluggedSetting;
-
     // True if the device should stay on.
     private boolean mStayOn;
 
