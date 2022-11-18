@@ -5336,12 +5336,6 @@ public final class Settings {
 
 
         /**
-         * Allow users to pull down the status bar quickly
-         * @hide
-         */
-        public static final String STATUS_BAR_QUICK_QS_PULLDOWN = "status_bar_quick_qs_pulldown";
-
-        /**
         * Whether to show Qs panel footer warnings like for active VPN
         * @hide
         */
