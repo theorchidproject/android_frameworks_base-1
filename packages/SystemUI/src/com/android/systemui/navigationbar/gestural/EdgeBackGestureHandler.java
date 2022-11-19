@@ -34,13 +34,10 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.hardware.input.InputManager;
-import android.os.AsyncTask;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
-import android.os.Vibrator;
-import android.os.VibrationEffect;
 import android.provider.DeviceConfig;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -255,9 +252,6 @@ public class EdgeBackGestureHandler extends CurrentUserTracker
     private int mSysUiFlags;
     private float mLongSwipeWidth;
 
-    private boolean mEdgeHapticEnabled;
-    private final Vibrator mVibrator;
-
     // For Tf-Lite model.
     private BackGestureTfClassifierProvider mBackGestureTfClassifierProvider;
     private Map<String, Integer> mVocab;
@@ -278,11 +272,7 @@ public class EdgeBackGestureHandler extends CurrentUserTracker
     private final NavigationEdgeBackPlugin.BackCallback mBackCallback =
             new NavigationEdgeBackPlugin.BackCallback() {
                 @Override
-                public void triggerBack() {
-                    if (mEdgeHapticEnabled) {
-                        vibrateBack(true /* Click */);
-                    }
-
+                public void triggerBack(boolean isLongPress) {
                     // Notify FalsingManager that an intentional gesture has occurred.
                     // TODO(b/186519446): use a different method than isFalseTouch
                     mFalsingManager.isFalseTouch(BACK_GESTURE);
@@ -327,7 +317,6 @@ public class EdgeBackGestureHandler extends CurrentUserTracker
             FalsingManager falsingManager) {
         super(broadcastDispatcher);
         mContext = context;
-        mVibrator = context.getSystemService(Vibrator.class);
         mDisplayId = context.getDisplayId();
         mMainExecutor = executor;
         mOverviewProxyService = overviewProxyService;
@@ -379,7 +368,6 @@ public class EdgeBackGestureHandler extends CurrentUserTracker
         Resources res = mNavigationModeController.getCurrentUserContext().getResources();
         mEdgeWidthLeft = mGestureNavigationSettingsObserver.getLeftSensitivity(res);
         mEdgeWidthRight = mGestureNavigationSettingsObserver.getRightSensitivity(res);
-        mEdgeHapticEnabled = mGestureNavigationSettingsObserver.getEdgeHaptic();
         mIsBackGestureAllowed =
                 !mGestureNavigationSettingsObserver.areNavigationButtonForcedVisible();
 
@@ -457,12 +445,6 @@ public class EdgeBackGestureHandler extends CurrentUserTracker
         mIsGesturalModeEnabled = QuickStepContract.isGesturalMode(mode);
         updateIsEnabled();
         updateCurrentUserResources();
-    }
-
-    private void vibrateBack(boolean light) {
-            AsyncTask.execute(() ->
-                    mVibrator.vibrate(VibrationEffect.get(light ? VibrationEffect.EFFECT_CLICK :
-                        VibrationEffect.EFFECT_HEAVY_CLICK, true  /* fallback */)));
     }
 
     public void onNavBarTransientStateChanged(boolean isTransient) {

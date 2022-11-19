@@ -5243,16 +5243,6 @@ public final class Settings {
         public static final String SHOW_FOURG_ICON = "show_fourg_icon";
 
         /**
-         * @hide
-         */
-        public static final String ROAMING_INDICATOR_ICON = "roaming_indicator_icon";
-        
-        /**
-         * @hide
-         */
-        public static final String BACK_GESTURE_HAPTIC = "back_gesture_haptic";
-
-        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -5281,15 +5271,6 @@ public final class Settings {
          */
         public static final String VOLUME_ROCKER_WAKE = "volume_rocker_wake";
 
-        /**
-         * Whether the torch launch gesture to double tap or long press the power button when the
-         * screen is off should be enabled. *
-         * 0: disabled
-         * 1: double tap power for torch
-         * 2: long tap power for torch
-         * @hide
-         */
-        public static final String TORCH_POWER_BUTTON_GESTURE = "torch_power_button_gesture";
 
         
         /**
@@ -5406,8 +5387,8 @@ public final class Settings {
             PRIVATE_SETTINGS.add(SHOW_BATTERY_PERCENT);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE);
             PRIVATE_SETTINGS.add(DISPLAY_COLOR_MODE_VENDOR_HINT);
-            PRIVATE_SETTINGS.add(VOLUME_ROCKER_WAKE);            
-            PRIVATE_SETTINGS.add(BACK_GESTURE_HAPTIC);
+            PRIVATE_SETTINGS.add(VOLUME_ROCKER_WAKE);
+
         }
 
         /**
