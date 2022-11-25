@@ -740,11 +740,21 @@ public final class PowerManager {
 
     /**
      * The value to pass as the 'reason' argument to reboot() to
+     * reboot into bootloader mode
+     * @hide
+     */
+    public static final String REBOOT_BOOTLOADER = "bootloader";
+
+    /**
+     * The value to pass as the 'reason' argument to reboot() to
+     * reboot into download mode
+     * @hide
+     */
+    public static final String REBOOT_DOWNLOAD = "download";
+
+    /**
+     * The value to pass as the 'reason' argument to reboot() to
      * reboot into fastboot mode
-     * <p>
-     * Requires the permission
-     * {@link android.Manifest.permission#REBOOT}).
-     * </p>
      * @hide
      */
     public static final String REBOOT_FASTBOOT = "fastboot";
@@ -1781,24 +1791,6 @@ public final class PowerManager {
             mService.rebootSafeMode(false, true);
         } catch (RemoteException e) {
             throw e.rethrowFromSystemServer();
-        }
-    }
-
-    /**
-     * Reboot the device with custom progress meassges.
-     * Will not return if the reboot is successful.
-     * <p>
-     * Requires the {@link android.Manifest.permission#REBOOT} permission.
-     * </p>
-     *
-     * @param reason code to pass to the kernel (e.g., "recovery") to
-     *               request special boot modes, or null.
-     * @hide
-     */
-    public void advancedReboot(String reason) {
-        try {
-            mService.advancedReboot(false, reason, true);
-        } catch (RemoteException e) {
         }
     }
 

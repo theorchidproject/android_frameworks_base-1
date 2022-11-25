@@ -15,17 +15,6 @@
    limitations under the License.
 -->
 <resources>
-  <!-- Advanced reboot -->
-  <java-symbol type="string" name="reboot_to_recovery_title" />
-  <java-symbol type="string" name="reboot_to_recovery_message" />
-  <java-symbol type="string" name="reboot_to_bootloader_title" />
-  <java-symbol type="string" name="reboot_to_bootloader_message" />
-  <java-symbol type="string" name="reboot_to_fastboot_title" />
-  <java-symbol type="string" name="reboot_to_fastboot_message" />
-  <java-symbol type="string" name="reboot_to_fastbootd_title" />
-  <java-symbol type="string" name="reboot_to_fastbootd_message" />
-  <java-symbol type="string" name="reboot_title" />
-  <java-symbol type="string" name="reboot_message" />
 
   <!-- Powermenu animations -->
   <java-symbol type="style" name="GlobalActionsAnimation" />
@@ -37,8 +26,5 @@
   <java-symbol type="style" name="GlobalActionsAnimationXylon" />
   <java-symbol type="style" name="GlobalActionsAnimationCard" />
   <java-symbol type="style" name="GlobalActionsAnimationRotate" />
-
-  <!-- Global Actions pref list -->
-  <java-symbol type="array" name="custom_config_globalActionsList" />
 
 </resources>

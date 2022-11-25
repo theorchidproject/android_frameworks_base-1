@@ -84,7 +84,7 @@ public final class ShutdownThread extends Thread {
     private static boolean sIsStarted = false;
 
     private static boolean mReboot;
-    private static boolean mAdvancedReboot;
+    private static boolean mRebootCustom;
     private static boolean mRebootSafeMode;
     private static boolean mRebootHasProgressBar;
     private static String mReason;
@@ -148,7 +148,7 @@ public final class ShutdownThread extends Thread {
      */
     public static void shutdown(final Context context, String reason, boolean confirm) {
         mReboot = false;
-        mAdvancedReboot = false;
+        mRebootCustom = false;
         mRebootSafeMode = false;
         mReason = reason;
         shutdownInner(context, confirm);
@@ -284,23 +284,6 @@ public final class ShutdownThread extends Thread {
         mRebootSafeMode = false;
         mRebootHasProgressBar = false;
         mReason = reason;
-        mAdvancedReboot = false;
-        shutdownInner(context, confirm);
-    }
-
-    /**
-     * Request reboot system, reboot recovery or reboot bootloader
-     *
-     * @param context Context used to display the shutdown progress dialog.
-     * @param reason code to pass to the kernel (e.g. "recovery", "bootloader"), or null.
-     * @param confirm true if user confirmation is needed before rebooting.
-     */
-    public static void advancedReboot(final Context context, String reason, boolean confirm) {
-        mReboot = true;
-        mAdvancedReboot = false;
-        mRebootSafeMode = false;
-        mReason = reason;
-        mAdvancedReboot = true;
         shutdownInner(context, confirm);
     }
 
@@ -376,69 +359,29 @@ public final class ShutdownThread extends Thread {
                             com.android.internal.R.string.reboot_to_update_reboot));
             }
         } else if (mReason != null && mReason.equals(PowerManager.REBOOT_RECOVERY)) {
-            if (showSysuiReboot()) {
+            if (mRebootCustom && showSysuiReboot()) {
                 return null;
-            } else if (!mAdvancedReboot) {
-                if (RescueParty.isAttemptingFactoryReset()) {
-                    // We're not actually doing a factory reset yet; we're rebooting
-                    // to ask the user if they'd like to reset, so give them a less
-                    // scary dialog message.
-                    pd.setTitle(context.getText(com.android.internal.R.string.power_off));
-                    pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
-                    pd.setIndeterminate(true);
-                } else {
-                    if (showSysuiReboot()) {
-                        return null;
-                    }
-                    // Factory reset path. Set the dialog message accordingly.
-                    pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_recovery_title));
-                    pd.setMessage(context.getText(
-                                com.android.internal.R.string.reboot_to_recovery_message));
-                    pd.setIndeterminate(true);
-                }
-            }
-        } else if (mReason != null && mReason.equals(PowerManager.REBOOT_BOOTLOADER) && mAdvancedReboot) {
-            if (showSysuiReboot()) {
-                return null;
-            }
-            pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_bootloader_title));
-            pd.setMessage(context.getText(
-                        com.android.internal.R.string.reboot_to_bootloader_message));
-            pd.setIndeterminate(true);
-        } else if (mReason != null && mReason.equals(PowerManager.REBOOT_FASTBOOT) && mAdvancedReboot) {
-            if (showSysuiReboot()) {
-                return null;
-            }
-            if (SystemProperties.getBoolean("ro.fastbootd.available", false)) {
-                pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_fastboot_title));
-                pd.setMessage(context.getText(
-                            com.android.internal.R.string.reboot_to_fastboot_message));
+            } else if (RescueParty.isAttemptingFactoryReset()) {
+                // We're not actually doing a factory reset yet; we're rebooting
+                // to ask the user if they'd like to reset, so give them a less
+                // scary dialog message.
+                pd.setTitle(context.getText(com.android.internal.R.string.power_off));
+                pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
+                pd.setIndeterminate(true);
             } else {
-                pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_fastbootd_title));
+                // Factory reset path. Set the dialog message accordingly.
+                pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_reset_title));
                 pd.setMessage(context.getText(
-                            com.android.internal.R.string.reboot_to_fastbootd_message));
+                            com.android.internal.R.string.reboot_to_reset_message));
+                pd.setIndeterminate(true);
             }
-            pd.setIndeterminate(true);
-        } else if (mReboot) {
-             if (showSysuiReboot()) {
-                  return null;
-             }
-            pd.setTitle(context.getText(com.android.internal.R.string.reboot_title));
-            pd.setMessage(context.getText(com.android.internal.R.string.reboot_message));
-            pd.setIndeterminate(true);
-        } else if (mReason == null && mAdvancedReboot) {
-            if (showSysuiReboot()) {
-                return null;
-            }
-            pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
-            pd.setIndeterminate(true);
         } else {
             if (showSysuiReboot()) {
                 return null;
             }
-            pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_recovery_title));
-            pd.setMessage(context.getText(
-                    com.android.internal.R.string.reboot_to_recovery_message));
+            pd.setTitle(context.getText(com.android.internal.R.string.power_off));
+            pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
+            pd.setIndeterminate(true);
         }
         pd.setCancelable(false);
         pd.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
@@ -456,7 +399,7 @@ public final class ShutdownThread extends Thread {
         try {
             StatusBarManagerInternal service = LocalServices.getService(
                     StatusBarManagerInternal.class);
-            if (service.showShutdownUi(mReboot, mReason, mAdvancedReboot)) {
+            if (service.showShutdownUi(mReboot, mReason, mRebootCustom)) {
                 // Sysui will handle shutdown UI.
                 Log.d(TAG, "SysUI handling shutdown UI");
                 return true;
