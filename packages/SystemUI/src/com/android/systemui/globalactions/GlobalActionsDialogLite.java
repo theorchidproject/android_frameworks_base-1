@@ -189,7 +189,6 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     private static final String RESTART_ACTION_KEY_RESTART_DOWNLOAD = "restart_download";
     private static final String RESTART_ACTION_KEY_RESTART_FASTBOOT = "restart_fastboot";
 
-    private static final String GLOBAL_ACTION_KEY_ADVANCED_RESTART = "advanced";
     private static final String GLOBAL_ACTION_KEY_ONTHEGO = "onthego";
 
     private static final int RESTART_RECOVERY_BUTTON = 1;
@@ -807,14 +806,10 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                 if (Settings.System.getInt(mContext.getContentResolver(),
                         Settings.System.POWERMENU_RESTART, 1) == 1) {
                     addIfShouldShowAction(tempActions, restartAction);
-                }
-            } else if (GLOBAL_ACTION_KEY_ADVANCED_RESTART.equals(actionKey)) {
-                if (Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.POWERMENU_ADVANCED, 1) == 1) {
-                    mPowerItems.add(restartRecoveryAction);
-                    mPowerItems.add(restartBootloaderAction);
-                    mPowerItems.add(restartSystemUiAction);
-                    addIfShouldShowAction(tempActions, new PowerOptionsAction());
+                    // if Restart action is available, add advanced restart actions too
+                    addIfShouldShowAction(tempActions, restartBootloaderAction);
+                    addIfShouldShowAction(tempActions, restartRecoveryAction);
+                    addIfShouldShowAction(tempActions, restartSystemUiAction);
                 }
             } else if (GLOBAL_ACTION_KEY_SCREENSHOT.equals(actionKey)) {
                 if (Settings.System.getInt(mContext.getContentResolver(),
@@ -845,6 +840,54 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             addedKeys.add(actionKey);
         }
 
+        for (int i = 0; i < restartActions.length; i++) {
+            String actionKey = restartActions[i];
+            if (addedRestartKeys.contains(actionKey)) {
+                // If we already have added this, don't add it again.
+                continue;
+            }
+            if (RESTART_ACTION_KEY_RESTART.equals(actionKey)) {
+                addIfShouldShowAction(mRestartItems, sysAction);
+            } else if (RESTART_ACTION_KEY_RESTART_RECOVERY.equals(actionKey)) {
+                addIfShouldShowAction(mRestartItems, recAction);
+            } else if (RESTART_ACTION_KEY_RESTART_BOOTLOADER.equals(actionKey)) {
+                addIfShouldShowAction(mRestartItems, blAction);
+            } else if (RESTART_ACTION_KEY_RESTART_DOWNLOAD.equals(actionKey)) {
+                addIfShouldShowAction(mRestartItems, dlAction);
+            } else if (RESTART_ACTION_KEY_RESTART_FASTBOOT.equals(actionKey)) {
+                addIfShouldShowAction(mRestartItems, fbAction);
+            }
+            // Add here so we don't add more than one.
+            addedRestartKeys.add(actionKey);
+        }
+
+        // replace power and restart with a single power options action, if needed
+        if (tempActions.contains(shutdownAction) && tempActions.contains(restartAction)
+                && tempActions.size() > getMaxShownPowerItems()) {
+            // transfer shutdown and restart to their own list of power actions
+            int powerOptionsIndex = Math.min(tempActions.indexOf(restartAction),
+                    tempActions.indexOf(shutdownAction));
+            tempActions.remove(shutdownAction);
+            tempActions.remove(restartAction);
+            tempActions.remove(restartBootloaderAction);
+            tempActions.remove(restartRecoveryAction);
+            tempActions.remove(restartSystemUiAction);
+            if (tempActions.contains(shutdownAction)) {
+                mPowerItems.add(shutdownAction); // will be removed later if needed
+            }
+            mPowerItems.add(restartAction);
+
+            // add the PowerOptionsAction after Emergency, if present
+            tempActions.add(powerOptionsIndex, new PowerOptionsAction());
+        }
+        // Add also Power to power actions list, if needed
+        if (tempActions.contains(shutdownAction) && mPowerItems.size() > 1
+                /*tempActions.size gets in count already PowerOptionsAction if added*/
+                && tempActions.size() > getMaxShownPowerItems()) {
+            tempActions.remove(shutdownAction);
+        } else {
+            mPowerItems.remove(shutdownAction);
+        }
         for (Action action : tempActions) {
             addActionItem(action);
         }
