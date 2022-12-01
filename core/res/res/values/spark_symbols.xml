@@ -8,4 +8,8 @@
    <!-- Settings Restart -->
    <java-symbol type="string" name="settings_restart_title" />
    <java-symbol type="string" name="settings_restart_message" />
+
+  <!-- Whether device supports an alt. ambient display -->
+  <java-symbol type="bool" name="config_alt_ambient_display"/>
+
 </resources>
