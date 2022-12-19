@@ -5397,19 +5397,8 @@ public final class Settings {
          * @hide
          */
         public static final String SETTINGS_DASHBOARD_GMS = "settings_dashboard_gms";
-       
-        /**
-        * reTicker Status
-        * @hide
-        */
-       public static final String RETICKER_STATUS = "reticker_status";
 
-       /**
-        * reTicker Colored
-        * @hide
-        */
-       public static final String RETICKER_COLORED = "reticker_colored";
-
+        
         /**
          * Use doubletap as doze pulse triggers
          * @hide
