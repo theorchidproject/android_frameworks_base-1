@@ -5410,6 +5410,16 @@ public final class Settings {
         */
        public static final String RETICKER_COLORED = "reticker_colored";
 
+
+       /**
+          * Enable disable CustomUI
+          *   0 = disabled
+          *   1 = enabled
+          * @author vjspranav
+          * @hide
+          */
+          public static final String CUSTOM_UI_TOGGLE = "custom_ui_toggle";
+
         /**
          * Use doubletap as doze pulse triggers
          * @hide
@@ -5528,6 +5538,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(VOLUME_ROCKER_WAKE);
             PRIVATE_SETTINGS.add(TRANSPARENT_POWER_MENU);
             PRIVATE_SETTINGS.add(TRANSPARENT_POWER_DIALOG_DIM);
+            PRIVATE_SETTINGS.add(CUSTOM_UI_TOGGLE);
         }
 
         /**
