@@ -73,10 +73,33 @@ class FooterActionsController @Inject constructor(
 
     var expanded = false
 
-    private val settingsButton: SettingsButton = view.findViewById(R.id.settings_button)
-    private val settingsButtonContainer: View? = view.findViewById(R.id.settings_button_container)
-    private val editButton: View = view.findViewById(android.R.id.edit)
+    private val animators: TouchAnimator
+        get() = if (inSplitShade) splitShadeAnimator else singleShadeAnimator
+
+    var visible = true
+        set(value) {
+            field = value
+            updateVisibility()
+        }
+
+    private val servicesButtonContainer: View = view.findViewById(R.id.services_button_container)
+    private val settingsButtonContainer: View = view.findViewById(R.id.settings_button_container)
+    private val securityFootersContainer: ViewGroup? =
+        view.findViewById(R.id.security_footers_container)
     private val powerMenuLite: View = view.findViewById(R.id.pm_lite)
+    private val multiUserSwitchController = multiUserSwitchControllerFactory.create(view)
+
+    private val QS_FOOTER_SHOW_SETTINGS =
+            "system:" + Settings.System.QS_FOOTER_SHOW_SETTINGS
+    private val  QS_FOOTER_SHOW_USER =
+            "system:" + Settings.System.QS_FOOTER_SHOW_USER
+    private val  QS_FOOTER_SHOW_POWER_MENU =
+            "system:" + Settings.System.QS_FOOTER_SHOW_POWER_MENU
+    private val QS_FOOTER_SHOW_SERVICES =
+            "system:" + Settings.System.QS_FOOTER_SHOW_SERVICES
+
+    @VisibleForTesting
+    internal val securityFootersSeparator = View(context).apply { visibility = View.GONE }
 
     private val onUserInfoChangedListener = OnUserInfoChangedListener { _, picture, _ ->
         val isGuestUser: Boolean = userManager.isGuestUser(KeyguardUpdateMonitor.getCurrentUser())
@@ -95,25 +118,16 @@ class FooterActionsController @Inject constructor(
                 activityStarter.postQSRunnableDismissingKeyguard {}
                 return@OnClickListener
             }
-            metricsLogger.action(
-                    if (expanded) MetricsProto.MetricsEvent.ACTION_QS_EXPANDED_SETTINGS_LAUNCH
-                    else MetricsProto.MetricsEvent.ACTION_QS_COLLAPSED_SETTINGS_LAUNCH)
-            if (settingsButton.isTunerClick) {
-                activityStarter.postQSRunnableDismissingKeyguard {
-                    if (isTunerEnabled()) {
-                        tunerService.showResetRequest {
-                            // Relaunch settings so that the tuner disappears.
-                            startSettingsActivity()
-                        }
-                    } else {
-                        Toast.makeText(context, R.string.tuner_toast, Toast.LENGTH_LONG).show()
-                        tunerService.isTunerEnabled = true
-                    }
-                    startSettingsActivity()
-                }
-            } else {
-                startSettingsActivity()
+            metricsLogger.action(MetricsProto.MetricsEvent.ACTION_QS_EXPANDED_SETTINGS_LAUNCH)
+            startSettingsActivity()
+        } else if (v === servicesButtonContainer) {
+            if (!deviceProvisionedController.isCurrentUserSetup) {
+                // If user isn't setup just unlock the device and dump them back at SUW.
+                activityStarter.postQSRunnableDismissingKeyguard {}
+                return@OnClickListener
             }
+            metricsLogger.action(MetricsProto.MetricsEvent.ACTION_QS_EXPANDED_SETTINGS_LAUNCH)
+            startServicesActivity()
         } else if (v === powerMenuLite) {
             uiEventLogger.log(GlobalActionsDialogLite.GlobalActionsEvent.GA_OPEN_QS)
             globalActionsDialog.showOrHideDialog(false, true, v)
@@ -150,9 +164,82 @@ class FooterActionsController @Inject constructor(
                 true /* dismissShade */, animationController)
     }
 
+    private fun startServicesActivity() {
+        val intent = Intent()
+        intent.setClassName("com.android.settings",
+                "com.android.settings.Settings\$DevRunningServicesActivity")
+        val animationController = servicesButtonContainer?.let {
+            ActivityLaunchAnimator.Controller.fromView(
+                    it,
+                    InteractionJankMonitor.CUJ_SHADE_APP_LAUNCH_FROM_SETTINGS_BUTTON)
+            }
+        activityStarter.startActivity(intent,
+                true /* dismissShade */, animationController)
+    }
+
     @VisibleForTesting
     public override fun onViewAttached() {
-        if (showPMLiteButton) {
+        globalActionsDialog = globalActionsDialogProvider.get()
+        servicesButtonContainer.setOnClickListener(onClickListener)
+        settingsButtonContainer.setOnClickListener(onClickListener)
+        settingsButtonContainer.setOnLongClickListener(onLongClickListener)
+        multiUserSetting.isListening = true
+
+        val securityFooter = securityFooterController.view
+        securityFootersContainer?.addView(securityFooter)
+        val separatorWidth = resources.getDimensionPixelSize(R.dimen.qs_footer_action_inset)
+        securityFootersContainer?.addView(securityFootersSeparator, separatorWidth, 1)
+
+        val fgsFooter = fgsManagerFooterController.view
+        securityFootersContainer?.addView(fgsFooter)
+
+        val visibilityListener =
+            VisibilityChangedDispatcher.OnVisibilityChangedListener { visibility ->
+                if (securityFooter.visibility == View.VISIBLE &&
+                    fgsFooter.visibility == View.VISIBLE) {
+                    securityFootersSeparator.visibility = View.VISIBLE
+                } else {
+                    securityFootersSeparator.visibility = View.GONE
+                }
+                fgsManagerFooterController
+                    .setCollapsed(securityFooter.visibility == View.VISIBLE)
+            }
+        securityFooterController.setOnVisibilityChangedListener(visibilityListener)
+        fgsManagerFooterController.setOnVisibilityChangedListener(visibilityListener)
+
+        configurationController.addCallback(configurationListener)
+
+        tunerService.addTunable(object : TunerService.Tunable {
+            override fun onTuningChanged(key: String?, newValue: String?) {
+                mView.updateServicesIconVisibility(tunerService.getValue(key, 0) != 0)
+            }
+        }, QS_FOOTER_SHOW_SERVICES)
+
+        tunerService.addTunable(object : TunerService.Tunable {
+            override fun onTuningChanged(key: String?, newValue: String?) {
+                mView.updateSettingsIconVisibility(tunerService.getValue(key, 1) != 0)
+            }
+        }, QS_FOOTER_SHOW_SETTINGS)
+
+        tunerService.addTunable(object : TunerService.Tunable {
+            override fun onTuningChanged(key: String?, newValue: String?) {
+                mView.updateUserIconVisibility(tunerService.getValue(key, 1) != 0)
+            }
+        }, QS_FOOTER_SHOW_USER)
+
+        tunerService.addTunable(object : TunerService.Tunable {
+            override fun onTuningChanged(key: String?, newValue: String?) {
+                mShowPMLiteButton = tunerService.getValue(key, 1) != 0
+                updatePMLiteIconVisibility()
+            }
+        }, QS_FOOTER_SHOW_POWER_MENU)
+
+        updateResources()
+        updateView()
+    }
+
+    private fun updatePMLiteIconVisibility() {
+        if (mShowPMLiteButton) {
             powerMenuLite.visibility = View.VISIBLE
             powerMenuLite.setOnClickListener(onClickListener)
         } else {

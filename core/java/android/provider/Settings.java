@@ -5398,12 +5398,26 @@ public final class Settings {
          */
         public static final String SETTINGS_DASHBOARD_GMS = "settings_dashboard_gms";
 
-        
+       /**
+          * Enable disable CustomUI
+          *   0 = disabled
+          *   1 = enabled
+          * @author vjspranav
+          * @hide
+          */
+          public static final String CUSTOM_UI_TOGGLE = "custom_ui_toggle";
+
         /**
          * Use doubletap as doze pulse triggers
          * @hide
          */
         public static final String DOZE_TRIGGER_DOUBLETAP = "doze_trigger_doubletap";
+
+        /**
+         * Show Running Services icon in QS Footer.
+         * @hide
+         */
+        public static final String QS_FOOTER_SHOW_SERVICES = "qs_footer_show_services";
 
 
         /**
@@ -5415,7 +5429,6 @@ public final class Settings {
         public static final Set<String> PUBLIC_SETTINGS = new ArraySet<>();
         static {
             PUBLIC_SETTINGS.add(END_BUTTON_BEHAVIOR);
-            PUBLIC_SETTINGS.add(WIFI_USE_STATIC_IP);
             PUBLIC_SETTINGS.add(WIFI_STATIC_IP);
             PUBLIC_SETTINGS.add(WIFI_STATIC_GATEWAY);
             PUBLIC_SETTINGS.add(WIFI_STATIC_NETMASK);
@@ -5517,6 +5530,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(VOLUME_ROCKER_WAKE);
             PRIVATE_SETTINGS.add(TRANSPARENT_POWER_MENU);
             PRIVATE_SETTINGS.add(TRANSPARENT_POWER_DIALOG_DIM);
+            PRIVATE_SETTINGS.add(CUSTOM_UI_TOGGLE);
         }
 
         /**
