@@ -18,6 +18,16 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Scarlet QS Tiles -->
+    <string name="quick_settings_scarlet_boost_mode_label">System Boost</string>
+    <string name="quick_settings_scarlet_services_unavailable">System Manager Disabled</string>
+    <string name="quick_settings_scarlet_boost_mode_enabled">Boost Active</string>
+    <string name="quick_settings_scarlet_boost_mode_disabled">Boost Inactive</string>
+    <string name="quick_settings_scarlet_idle_mode_label">Aggressive Idle Manager</string>
+    <string name="quick_settings_scarlet_idle_mode_enabled">Agrressive Idle Active</string>
+    <string name="quick_settings_scarlet_idle_mode_disabled">Agrressive Idle Inactive</string>
+
     <!-- Suffix added to a number to signify size in bytes. -->
     <string name="byteShort">B</string>
     <!-- Suffix added to a number to signify size in kilobytes (1000 bytes).

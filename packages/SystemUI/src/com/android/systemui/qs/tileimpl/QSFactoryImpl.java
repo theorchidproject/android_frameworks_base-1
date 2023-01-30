@@ -55,10 +55,11 @@ import com.android.systemui.qs.tiles.ReadingModeTile;
 import com.android.systemui.qs.tiles.ReduceBrightColorsTile;
 import com.android.systemui.qs.tiles.RotationLockTile;
 import com.android.systemui.qs.tiles.ScreenRecordTile;
+import com.android.systemui.qs.tiles.ScarletIdleManagerTile;
+import com.android.systemui.qs.tiles.ScarletBoostManagerTile;
 import com.android.systemui.qs.tiles.SyncTile;
 import com.android.systemui.qs.tiles.UiModeNightTile;
 import com.android.systemui.qs.tiles.UsbTetherTile;
-import com.android.systemui.qs.tiles.UserTile;
 import com.android.systemui.qs.tiles.VpnTile;
 import com.android.systemui.qs.tiles.WifiTile;
 import com.android.systemui.qs.tiles.WorkModeTile;
@@ -111,6 +112,8 @@ public class QSFactoryImpl implements QSFactory {
     private final Provider<ProfilesTile> mProfilesTileProvider;
     private final Provider<UsbTetherTile> mUsbTetherTileProvider;
     private final Provider<VpnTile> mVpnTileProvider;
+    private final Provider<ScarletIdleManagerTile> mScarletIdleManagerTileProvider;
+    private final Provider<ScarletBoostManagerTile> mScarletBoostManagerTileProvider;
 
     private final Lazy<QSHost> mQsHostLazy;
     private final Provider<CustomTile.Builder> mCustomTileBuilderProvider;
@@ -155,10 +158,12 @@ public class QSFactoryImpl implements QSFactory {
             Provider<ReadingModeTile> readingModeTileProvider,
             Provider<SyncTile> syncTileProvider,
             Provider<UsbTetherTile> usbTetherTileProvider,
-            Provider<VpnTile> vpnTileProvider) {
+            Provider<VpnTile> vpnTileProvider),
+            Provider<ScarletIdleManagerTile> scarletIdleManagerTileProvider,
+            Provider<ScarletBoostManagerTile> scarletBoostManagerTileProvider) {
         mQsHostLazy = qsHostLazy;
         mCustomTileBuilderProvider = customTileBuilderProvider;
-
+    
         mWifiTileProvider = wifiTileProvider;
         mInternetTileProvider = internetTileProvider;
         mBluetoothTileProvider = bluetoothTileProvider;
@@ -196,6 +201,8 @@ public class QSFactoryImpl implements QSFactory {
         mProfilesTileProvider = profilesTileProvider;
         mUsbTetherTileProvider = usbTetherTileProvider;
         mVpnTileProvider = vpnTileProvider;
+        mScarletIdleManagerTileProvider = scarletIdleManagerTileProvider;
+        mScarletBoostManagerTileProvider = scarletBoostManagerTileProvider;
     }
 
     public QSTile createTile(String tileSpec) {
@@ -208,8 +215,6 @@ public class QSFactoryImpl implements QSFactory {
     }
 
     private QSTileImpl createTileInternal(String tileSpec) {
-        switch (tileSpec) {
-            // Stock tiles.
             case "wifi":
                 return mWifiTileProvider.get();
             case "internet":
@@ -225,7 +230,6 @@ public class QSFactoryImpl implements QSFactory {
             case "airplane":
                 return mAirplaneModeTileProvider.get();
             case "work":
-                return mWorkModeTileProvider.get();
             case "rotation":
                 return mRotationLockTileProvider.get();
             case "flashlight":
@@ -283,6 +287,10 @@ public class QSFactoryImpl implements QSFactory {
                 return mUsbTetherTileProvider.get();
             case "vpn":
                 return mVpnTileProvider.get();
+            case "scarlet_idle":
+                return mScarletIdleManagerTileProvider.get();
+            case "scarlet_boost":
+                return mScarletBoostManagerTileProvider.get();
         }
 
         // Custom tiles
