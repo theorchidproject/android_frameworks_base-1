@@ -238,6 +238,8 @@ public class SettingsProvider extends ContentProvider {
     private static final Set<String> OVERLAY_ALLOWED_GLOBAL_INSTANT_APP_SETTINGS = new ArraySet<>();
     private static final Set<String> OVERLAY_ALLOWED_SYSTEM_INSTANT_APP_SETTINGS = new ArraySet<>();
     private static final Set<String> OVERLAY_ALLOWED_SECURE_INSTANT_APP_SETTINGS = new ArraySet<>();
+    
+    private static final String NAV_MODE_IMMERSIVE_OVERLAY = "com.android.overlay.systemui.immnav.gestural";
 
     static {
         for (String name : Resources.getSystem().getStringArray(
@@ -5301,11 +5303,17 @@ public class SettingsProvider extends ContentProvider {
             try {
                 final IOverlayManager om = IOverlayManager.Stub.asInterface(
                         ServiceManager.getService(Context.OVERLAY_SERVICE));
-                final OverlayInfo info = om.getOverlayInfo(NAV_BAR_MODE_GESTURAL_OVERLAY, userId);
+                final Setting immNavSetting = secureSettings.getSettingLocked(
+                        Settings.Secure.IMMERSIVE_NAVIGATION);
+                final boolean immNavEnabled = !immNavSetting.isNull() &&
+                        immNavSetting.getValue().equals("1");
+                final OverlayInfo info = om.getOverlayInfo(immNavEnabled ?
+                        NAV_MODE_IMMERSIVE_OVERLAY : NAV_BAR_MODE_GESTURAL_OVERLAY, userId);
                 if (info != null && !info.isEnabled()) {
                     final int curInset = getContext().getResources().getDimensionPixelSize(
                             com.android.internal.R.dimen.config_backGestureInset);
-                    om.setEnabledExclusiveInCategory(NAV_BAR_MODE_GESTURAL_OVERLAY, userId);
+                    om.setEnabledExclusiveInCategory(immNavEnabled ? NAV_MODE_IMMERSIVE_OVERLAY :
+                        NAV_BAR_MODE_GESTURAL_OVERLAY, userId);
                     final int defInset = getContext().getResources().getDimensionPixelSize(
                             com.android.internal.R.dimen.config_backGestureInset);
 
