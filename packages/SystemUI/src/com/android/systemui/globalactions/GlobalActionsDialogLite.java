@@ -764,9 +764,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                         Settings.System.POWERMENU_RESTART, 1) == 1) {
                     addIfShouldShowAction(tempActions, restartAction);
                     // if Restart action is available, add advanced restart actions too
-                    addIfShouldShowAction(tempActions, restartBootloaderAction);
-                    addIfShouldShowAction(tempActions, restartRecoveryAction);
-                    addIfShouldShowAction(tempActions, restartSystemUiAction);
+      
                 }
             } else if (GLOBAL_ACTION_KEY_SCREENSHOT.equals(actionKey)) {
                 if (Settings.System.getInt(mContext.getContentResolver(),
