@@ -255,7 +255,6 @@ import com.android.server.am.BaseErrorDialog;
 import com.android.server.am.PendingIntentController;
 import com.android.server.am.PendingIntentRecord;
 import com.android.server.am.UserState;
-import com.android.server.app.AppLockManagerServiceInternal;
 import com.android.server.firewall.IntentFirewall;
 import com.android.server.inputmethod.InputMethodSystemProperty;
 import com.android.server.pm.UserManagerService;
@@ -833,8 +832,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             mAmInternal.updateOomAdj();
         }
     };
-
-    private AppLockManagerServiceInternal mAppLockManagerService = null;
 
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public ActivityTaskManagerService(Context context) {
@@ -1770,7 +1767,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
         final int callingPid = Binder.getCallingPid();
         final int callingUid = Binder.getCallingUid();
-
         final SafeActivityOptions safeOptions = SafeActivityOptions.fromBundle(bOptions);
         final long origId = Binder.clearCallingIdentity();
         try {
@@ -3585,29 +3581,15 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         }
     }
 
-    @Override
-    public TaskSnapshot takeTaskSnapshot(int taskId) {
-        mAmInternal.enforceCallingPermission(READ_FRAME_BUFFER, "takeTaskSnapshot()");
-        final long ident = Binder.clearCallingIdentity();
-        try {
-            synchronized (mGlobalLock) {
-                final Task task = mRootWindowContainer.anyTaskForId(taskId,
-                        MATCH_ATTACHED_TASK_OR_RECENT_TASKS);
-                if (task == null || !task.isVisible()) {
-                    Slog.w(TAG, "takeTaskSnapshot: taskId=" + taskId + " not found or not visible");
-                    return null;
-                }
-                final Task rootTask = task.getRootTask();
-                final String packageName =
-                    rootTask != null && rootTask.realActivity != null
-                        ? rootTask.realActivity.getPackageName()
-                        : null;
-                if (packageName != null && getAppLockManagerService().requireUnlock(
-                        packageName, task.mUserId)) {
-                    return null;
-                }
-                return mWindowManager.mTaskSnapshotController.captureTaskSnapshot(
-                        task, false /* snapshotHome */);
+    private TaskSnapshot getTaskSnapshot(int taskId, boolean isLowResolution,
+            boolean restoreFromDisk) {
+        final Task task;
+        synchronized (mGlobalLock) {
+            task = mRootWindowContainer.anyTaskForId(taskId,
+                    MATCH_ATTACHED_TASK_OR_RECENT_TASKS);
+            if (task == null) {
+                Slog.w(TAG, "getTaskSnapshot: taskId=" + taskId + " not found");
+                return null;
             }
         }
         // Don't call this while holding the lock as this operation might hit the disk.
@@ -4947,13 +4929,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             mStatusBarManagerInternal = LocalServices.getService(StatusBarManagerInternal.class);
         }
         return mStatusBarManagerInternal;
-    }
-
-    AppLockManagerServiceInternal getAppLockManagerService() {
-        if (mAppLockManagerService == null) {
-            mAppLockManagerService = LocalServices.getService(AppLockManagerServiceInternal.class);
-        }
-        return mAppLockManagerService;
     }
 
     AppWarnings getAppWarningsLocked() {
@@ -6679,16 +6654,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                                     + FIRST_ORDERED_ID + "," + LAST_ORDERED_ID + "]");
                 }
                 mActivityInterceptorCallbacks.put(id, callback);
-            }
-        }
-
-
-
-        @Override
-        public boolean isVisibleActivity(IBinder activityToken) {
-            synchronized (mGlobalLock) {
-                final ActivityRecord r = ActivityRecord.isInRootTaskLocked(activityToken);
-                return r != null && r.isInterestingToUserLocked();
             }
         }
     }
